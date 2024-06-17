@@ -5,6 +5,10 @@ import PackageDescription
 
 let package = Package(
     name: "SwiftUtils",
+
+    platforms: [
+        .macOS(.v10_15), .iOS(.v17),
+    ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
@@ -19,5 +23,4 @@ let package = Package(
         .testTarget(
             name: "SwiftUtilsTests",
             dependencies: ["SwiftUtils"]),
-    ]
-)
+    ])
