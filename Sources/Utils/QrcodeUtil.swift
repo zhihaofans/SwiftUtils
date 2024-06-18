@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 @available(macOS 10.15, *)
-class QrcodeUtil {
+public class QrcodeUtil {
     private let context = CIContext()
     private let filter = CIFilter.qrCodeGenerator()
     func generateQRCode(from string: String) -> NSImage? {

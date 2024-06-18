@@ -7,7 +7,7 @@
 
 import Foundation
 
-class DateUtil {
+public class DateUtil {
     func getTimestamp() -> Int {
         return Int(Date().timeIntervalSince1970)
     }
