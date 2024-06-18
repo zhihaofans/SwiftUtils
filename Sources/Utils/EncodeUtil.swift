@@ -8,7 +8,7 @@
 import Foundation
 
 public class EncodeUtil {
-    init() {}
+    public init() {}
 
     public func UrlEncode(oldString: String) -> String {
         return oldString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? oldString
