@@ -8,11 +8,11 @@
 import Foundation
 
 public class DateUtil {
-    func getTimestamp() -> Int {
+    public func getTimestamp() -> Int {
         return Int(Date().timeIntervalSince1970)
     }
 
-    func timestampToTimeStr(timestampInt: Int) -> String {
+    public func timestampToTimeStr(timestampInt: Int) -> String {
         // 转换为 Date 对象
         let date = Date(timeIntervalSince1970: Double(timestampInt))
         // 创建 DateFormatter
@@ -28,7 +28,7 @@ public class DateUtil {
         return dateString // 输出 "2020-05-23 19:47:52"
     }
 
-    func timestampToTimeStr(timestamp: Double) -> String {
+    public func timestampToTimeStr(timestamp: Double) -> String {
         // 转换为 Date 对象
         let date = Date(timeIntervalSince1970: Double(timestamp))
         // 创建 DateFormatter
@@ -44,7 +44,7 @@ public class DateUtil {
         return dateString // 输出 "2020-05-23 19:47:52"
     }
 
-    func getNowTimeStr() -> String {
+    public func getNowTimeStr() -> String {
         // 转换为 Date 对象
         return self.timestampToTimeStr(timestamp: Date().timeIntervalSince1970) // 输出 "2020-05-23 19:47:52"
     }
