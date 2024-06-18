@@ -13,6 +13,8 @@ import SwiftUI
 public class QrcodeUtil {
     private let context = CIContext()
     private let filter = CIFilter.qrCodeGenerator()
+    init() {}
+
     public func generateQRCode(from string: String) -> NSImage? {
         filter.message = Data(string.utf8)
         if let outputImage = filter.outputImage {

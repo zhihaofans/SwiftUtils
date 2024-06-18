@@ -8,6 +8,7 @@
 import Foundation
 
 public class DateUtil {
+    init(){}
     public func getTimestamp() -> Int {
         return Int(Date().timeIntervalSince1970)
     }
