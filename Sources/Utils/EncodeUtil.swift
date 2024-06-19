@@ -17,4 +17,14 @@ public class EncodeUtil {
     public func UrlDecode(oldString: String) -> String {
         return oldString.removingPercentEncoding ?? oldString
     }
+    public func base64Encode(oldString: String) -> String {
+    let data = oldString.data(using: .utf8)
+    return data?.base64EncodedString() ?? oldString
+    }
+  public func base64Decode(_ base64String: String) -> String {
+    guard let data = Data(base64Encoded: base64String) else {
+        return base64String
+    }
+    return String(data: data, encoding: .utf8) ?? base64String
+    }
 }
