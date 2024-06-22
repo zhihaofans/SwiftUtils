@@ -8,7 +8,7 @@
 import CryptoKit // 引入你的 C 包装模块
 import Foundation
 
-class HashUtil {
+public class HashUtil {
     public init() {}
     public func sha256(input: String) -> String {
         let inputData = Data(input.utf8)
