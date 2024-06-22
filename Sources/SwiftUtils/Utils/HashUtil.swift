@@ -5,11 +5,12 @@
 //  Created by zzh on 2024/6/22.
 //
 
-import CCWrapper // 引入你的 C 包装模块
+import CommonCrypto // 引入你的 C 包装模块
 import Foundation
 
 class HashUtil {
-    func sha256(_ string: String) -> String {
+    public init() {}
+    public func sha256(_ string: String) -> String {
         guard let data = string.data(using: .utf8) else { return "" }
         var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
 
