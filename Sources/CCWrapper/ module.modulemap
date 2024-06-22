@@ -1,0 +1,12 @@
+//
+//  module.map.modulemap
+//  
+//
+//  Created by zzh on 2024/6/22.
+//
+
+module CCWrapper [system] {
+    header "shim.h"
+    export *
+    link "CommonCrypto"
+}
