@@ -9,6 +9,8 @@ import Foundation
 import Security
 
 public class KeychainUtil {
+    public init() {}
+
     public func update(forKey key: String, value: String) -> Bool {
         guard let data = value.data(using: .utf8) else { return false }
         let query: [String: Any] = [
