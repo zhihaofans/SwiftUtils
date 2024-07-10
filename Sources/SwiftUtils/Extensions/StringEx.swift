@@ -15,4 +15,19 @@ public extension String {
     var isInt: Bool {
         return Int(self) != nil
     }
+    func has(keyword:String) -> Bool {
+        return self.contains(keyword)
+    }
+    func replace(of:String, with:String) -> String {
+        return self.replacingOccurrences(of:of,with:with)
+    }
+}
+public extension String? {
+    var isNotEmpty: Bool {
+        return (self ?? "").isEmpty == false
+    }
+
+    var isInt: Bool {
+        return Int(self ?? "") != nil
+    }
 }
