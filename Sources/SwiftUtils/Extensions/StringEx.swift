@@ -30,4 +30,7 @@ public extension String? {
     var isInt: Bool {
         return Int(self ?? "") != nil
     }
+    func getString(defaultValue: String) -> String {
+        return self ?? defaultValue
+    }
 }
