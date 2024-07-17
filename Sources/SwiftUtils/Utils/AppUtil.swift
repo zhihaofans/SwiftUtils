@@ -13,10 +13,10 @@ import UIKit
 import AppKit
 #endif
 public class AppUtil {
-    public func openUrl(urlString: String) ->Bool {
+    public func openUrl(urlString: String) async -> Bool {
         if let url = URL(string: urlString) {
 #if canImport(UIKit)
-            return UIApplication.shared.open(url, options: [:])
+            return await UIApplication.shared.open(url, options: [:])
 #else
             return NSWorkspace.shared.open(url)
 #endif
@@ -24,15 +24,15 @@ public class AppUtil {
         return false
     }
 
-    public func openUrl(url: URL) ->Bool {
+    public func openUrl(url: URL) async -> Bool {
 #if canImport(UIKit)
-        return UIApplication.shared.open(url, options: [:])
+        return await UIApplication.shared.open(url, options: [:])
 #else
         return NSWorkspace.shared.open(url)
 #endif
     }
 
-    public func canOpenUrl(urlString: String)->Bool {
+    public func canOpenUrl(urlString: String) -> Bool {
         if let url = URL(string: urlString) {
 #if canImport(UIKit)
             return UIApplication.shared.canOpenURL(url)
@@ -44,7 +44,7 @@ public class AppUtil {
         }
     }
 
-    public func canOpenUrl(url: URL)->Bool {
+    public func canOpenUrl(url: URL) -> Bool {
 #if canImport(UIKit)
         return UIApplication.shared.canOpenURL(url)
 #else
