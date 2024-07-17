@@ -13,6 +13,8 @@ import UIKit
 import AppKit
 #endif
 public class AppUtil {
+    public init() {}
+
     public func openUrl(urlString: String) async -> Bool {
         if let url = URL(string: urlString) {
 #if canImport(UIKit)
