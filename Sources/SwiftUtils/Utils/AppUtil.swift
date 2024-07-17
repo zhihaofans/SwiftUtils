@@ -53,4 +53,27 @@ public class AppUtil {
         return false
 #endif
     }
+
+    public func getAppVersion() -> String {
+        if let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
+            return version
+        }
+        return "Unknown"
+    }
+
+    public func getAppBuild() -> String {
+        if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+            return build
+        }
+        return "Unknown"
+    }
+
+    public func getAppVersionAndBuild() -> String {
+        if let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+           let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+        {
+            return "Version \(version) (\(build))"
+        }
+        return "Unknown version"
+    }
 }
