@@ -118,7 +118,7 @@ public class ClipboardUtil {
         #if os(macOS)
         return getUrl() != nil
         #else
-        return pasteboard.hasURLs()
+        return pasteboard.hasURLs
         #endif
     }
 
@@ -159,7 +159,7 @@ public class ClipboardUtil {
         #if os(macOS)
         return getColor() != nil
         #else
-        return UIPasteboard.general.hasColors()
+        return UIPasteboard.general.hasColors
         #endif
     }
 }
