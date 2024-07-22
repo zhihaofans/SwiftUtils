@@ -10,7 +10,6 @@ import Foundation
 public class DeviceUtil {
     public init() {}
 
-    
     public func isMac() -> Bool {
         #if os(macOS)
         return true
@@ -18,6 +17,7 @@ public class DeviceUtil {
         return false
         #endif
     }
+
     public func isWatch() -> Bool {
         #if os(watchOS)
         return true
