@@ -7,11 +7,13 @@
 
 import Alamofire
 import Foundation
+
 public class HttpUtil {
     private var headers: HTTPHeaders
     public init() {
         self.headers=["User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_5 like Mac OS X) AppleWebKit/630.3 (KHTML, like Gecko) Version/14.5.21 Mobile/4QKLI4 Safari/630.3"]
     }
+
     public func setHeader(newHeaders: HTTPHeaders) {
         self.headers=newHeaders
     }
@@ -47,7 +49,5 @@ public class HttpUtil {
             }
         }
     }
-    public func isUrl(str:String) -> Bool{
-        
-    }
+
 }
