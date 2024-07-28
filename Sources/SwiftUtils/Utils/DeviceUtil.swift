@@ -54,11 +54,12 @@ public class DeviceUtil {
         return UIDevice.current.name
         #endif
     }
+
     public func getDeviceModel() -> String {
         #if os(macOS)
         return "macOS"
         #else
-        return UIDevice.current.isBatteryMonitoringEnabled
+        return UIDevice.current.model
         #endif
     }
 }
