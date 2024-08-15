@@ -61,6 +61,18 @@ public class AppUtil {
         return "Unknown"
     }
 
+    public func getAppName() -> String? {
+        return self.getAppDisplayName() ?? self.getAppBundleName() ?? "Unknown App Name"
+    }
+
+    public func getAppDisplayName() -> String? {
+        return Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
+    }
+
+    public func getAppBundleName() -> String? {
+        return Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
+    }
+
     public func getAppBuild() -> String {
         if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
             return build
