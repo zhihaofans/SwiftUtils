@@ -80,6 +80,33 @@ public class AppUtil {
         return "Unknown"
     }
 
+    public func getAppIconName() -> String? {
+        if let iconsDictionary = Bundle.main.infoDictionary?["CFBundleIcons"] as? [String: Any],
+           let primaryIconsDictionary = iconsDictionary["CFBundlePrimaryIcon"] as? [String: Any],
+           let iconFiles = primaryIconsDictionary["CFBundleIconFiles"] as? [String],
+           let lastIcon = iconFiles.last
+        {
+            return lastIcon
+        }
+        return nil
+    }
+
+#if os(macOS)
+    public func getAppIconImage() -> NSImage? {
+        if let iconName = self.getAppIconName() {
+            return NSImage(named: iconName)
+        }
+        return nil
+    }
+#else
+    public func getAppIconImage() -> UIImage? {
+        if let iconName = self.getAppIconName() {
+            return UIImage(named: iconName)
+        }
+        return nil
+    }
+#endif
+
     public func getAppVersionAndBuild() -> String {
         if let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
            let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
