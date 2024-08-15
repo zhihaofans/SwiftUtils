@@ -61,7 +61,7 @@ public class AppUtil {
         return "Unknown"
     }
 
-    public func getAppName() -> String? {
+    public func getAppName() -> String {
         return self.getAppDisplayName() ?? self.getAppBundleName() ?? "Unknown App Name"
     }
 
