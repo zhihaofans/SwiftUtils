@@ -51,8 +51,8 @@ public class UserDefaultUtil {
         self.userDefault.setValue(value, forKey: key)
     }
 
-    public func getArrayString(key: String) -> [String]? {
-        return self.userDefault.array(forKey: key) as? [String]
+    public func getArrayString(key: String) -> [String] {
+        return self.userDefault.array(forKey: key) as? [String] ?? []
     }
 
     public func getArrayLength(key: String) -> Int {
