@@ -42,8 +42,8 @@ public class UserDefaultUtil {
         return self.userDefault.array(forKey: key) as? [String]
     }
 
-    public func getArrayLength(key: String) -> Int? {
-        return self.userDefault.array(forKey: key)?.count
+    public func getArrayLength(key: String) -> Int {
+        return self.userDefault.array(forKey: key)?.count ?? 0
     }
 
     public func setBool(key: String, value: Bool) {
