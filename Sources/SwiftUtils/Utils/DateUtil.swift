@@ -49,4 +49,9 @@ public class DateUtil {
         // 转换为 Date 对象
         return self.timestampToTimeStr(timestamp: Date().timeIntervalSince1970) // 输出 "2020-05-23 19:47:52"
     }
+
+    public func isYesterday(timestampInt: Int) {
+        // TODO:
+        let date = Date(timeIntervalSince1970: Double(timestampInt))
+    }
 }
