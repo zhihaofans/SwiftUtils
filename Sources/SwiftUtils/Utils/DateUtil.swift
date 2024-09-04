@@ -10,7 +10,7 @@ import Foundation
 public class DateUtil {
     public init() {}
     public func getTimestamp() -> Int {
-        return Int(Date().timeIntervalSince1970)
+        return Date().timestamp
     }
 
     public func timestampToTimeStr(timestampInt: Int) -> String {
