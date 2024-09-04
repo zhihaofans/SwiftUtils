@@ -35,4 +35,49 @@ public extension Date {
     var timestamp: Int {
         return Int(self.timeIntervalSince1970)
     }
+
+    var timestampToTimeChinese: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy年MM月dd日HH时mm分ss秒"
+        formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
+        formatter.timeZone = TimeZone(abbreviation: "Asia/Shanghai") // 中央标准时间
+        let dateString = formatter.string(from: self)
+        return dateString // 输出 "2020-05-23 19:47:52"
+    }
+
+    var timestampToTimeStr: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
+        formatter.timeZone = TimeZone(abbreviation: "Asia/Shanghai") // 中央标准时间
+        let dateString = formatter.string(from: self)
+        return dateString // 输出 "2020-05-23 19:47:52"
+    }
+
+    var timestampToTimeStrMinute: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
+        formatter.timeZone = TimeZone(abbreviation: "Asia/Shanghai") // 中央标准时间
+        let dateString = formatter.string(from: self)
+        return dateString // 输出 "2020-05-23 19:47:52"
+    }
+
+    var timestampToTimeStrHour: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH"
+        formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
+        formatter.timeZone = TimeZone(abbreviation: "Asia/Shanghai") // 中央标准时间
+        let dateString = formatter.string(from: self)
+        return dateString // 输出 "2020-05-23 19:47:52"
+    }
+
+    var timestampToTimeStrDay: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
+        formatter.timeZone = TimeZone(abbreviation: "Asia/Shanghai") // 中央标准时间
+        let dateString = formatter.string(from: self)
+        return dateString // 输出 "2020-05-23 19:47:52"
+    }
 }
