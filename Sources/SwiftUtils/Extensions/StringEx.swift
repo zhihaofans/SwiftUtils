@@ -31,6 +31,9 @@ public extension String {
             return self
         }
     }
+    func removeLeftSpaceAndNewLine() -> String {
+        return self.drop(while: { $0 == " " || $0 == "\n" }))
+    }
 }
 
 public extension String? {
