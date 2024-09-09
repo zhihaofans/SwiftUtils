@@ -20,3 +20,9 @@ public extension Array {
         return self.count
     }
 }
+
+public extension Array where Element: Equatable {
+    func has(_ item: Element) -> Bool {
+        return self.contains(item)
+    }
+}
