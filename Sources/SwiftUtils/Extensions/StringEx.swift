@@ -16,6 +16,10 @@ public extension String {
         return Int(self) != nil
     }
 
+    var toSubstring: Substring {
+        return self[self.startIndex...]
+    }
+
     func has(keyword: String) -> Bool {
         return self.contains(keyword)
     }
@@ -31,8 +35,9 @@ public extension String {
             return self
         }
     }
+
     func removeLeftSpaceAndNewLine() -> String {
-        return self.drop(while: { $0 == " " || $0 == "\n" }))
+        return String(self.toSubstring.drop(while: { $0 == " " || $0 == "\n" }))
     }
 }
 
