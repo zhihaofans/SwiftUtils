@@ -16,6 +16,10 @@ public extension String {
         return Int(self) != nil
     }
 
+    var isUrl: Bool {
+        return URL(string: self) != nil
+    }
+
     var toSubstring: Substring {
         return self[self.startIndex...]
     }
