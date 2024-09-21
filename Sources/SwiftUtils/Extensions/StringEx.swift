@@ -24,7 +24,7 @@ public extension String {
         return self[self.startIndex...]
     }
 
-    func has(keyword: String) -> Bool {
+    func has(_ keyword: String) -> Bool {
         return self.contains(keyword)
     }
 
@@ -32,7 +32,7 @@ public extension String {
         return self.replacingOccurrences(of: of, with: with)
     }
 
-    func getString(defaultValue: String) -> String {
+    func getString(_ defaultValue: String) -> String {
         if self.count == 0 {
             return defaultValue
         } else {
@@ -54,7 +54,7 @@ public extension String? {
         return Int(self ?? "") != nil
     }
 
-    func getString(defaultValue: String) -> String {
+    func getString(_ defaultValue: String) -> String {
         return self ?? defaultValue
     }
 }

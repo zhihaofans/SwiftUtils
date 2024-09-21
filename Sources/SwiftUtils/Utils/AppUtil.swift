@@ -15,7 +15,7 @@ import AppKit
 public class AppUtil {
     public init() {}
 
-    public func openUrl(urlString: String) async -> Bool {
+    public func openUrl(_ urlString: String) async -> Bool {
         if let url = URL(string: urlString) {
 #if canImport(UIKit)
             return await UIApplication.shared.open(url, options: [:])
@@ -26,7 +26,7 @@ public class AppUtil {
         return false
     }
 
-    public func openUrl(url: URL) async -> Bool {
+    public func openUrl(_ url: URL) async -> Bool {
 #if canImport(UIKit)
         return await UIApplication.shared.open(url, options: [:])
 #else
@@ -34,7 +34,7 @@ public class AppUtil {
 #endif
     }
 
-    public func canOpenUrl(urlString: String) -> Bool {
+    public func canOpenUrl(_ urlString: String) -> Bool {
         if let url = URL(string: urlString) {
 #if canImport(UIKit)
             return UIApplication.shared.canOpenURL(url)
@@ -46,7 +46,7 @@ public class AppUtil {
         }
     }
 
-    public func canOpenUrl(url: URL) -> Bool {
+    public func canOpenUrl(_ url: URL) -> Bool {
 #if canImport(UIKit)
         return UIApplication.shared.canOpenURL(url)
 #else

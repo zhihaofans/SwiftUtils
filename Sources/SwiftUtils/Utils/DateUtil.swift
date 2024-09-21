@@ -13,7 +13,7 @@ public class DateUtil {
         return Date().timestamp
     }
 
-    public func timestampToTimeStr(timestampInt: Int) -> String {
+    public func timestampToTimeStr(_ timestampInt: Int) -> String {
         // 转换为 Date 对象
         let date = Date(timeIntervalSince1970: Double(timestampInt))
         // 创建 DateFormatter
@@ -29,7 +29,7 @@ public class DateUtil {
         return dateString // 输出 "2020-05-23 19:47:52"
     }
 
-    public func timestampToTimeStr(timestamp: Double) -> String {
+    public func timestampToTimeStr(_ timestamp: Double) -> String {
         // 转换为 Date 对象
         let date = Date(timeIntervalSince1970: Double(timestamp))
         // 创建 DateFormatter
@@ -50,7 +50,7 @@ public class DateUtil {
         return self.timestampToTimeStr(timestamp: Date().timeIntervalSince1970) // 输出 "2020-05-23 19:47:52"
     }
 
-    public func isYesterday(timestampInt: Int) {
+    public func isYesterday(_ timestampInt: Int) {
         // TODO:
         let date = Date(timeIntervalSince1970: Double(timestampInt))
     }

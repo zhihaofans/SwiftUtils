@@ -10,19 +10,19 @@ import Foundation
 
 public class HashUtil {
     public init() {}
-    public func sha256(input: String) -> String {
+    public func sha256(_ input: String) -> String {
         let inputData = Data(input.utf8)
         let hashedData = SHA256.hash(data: inputData)
         return hashedData.compactMap { String(format: "%02x", $0) }.joined()
     }
 
-    public func sha512(input: String) -> String {
+    public func sha512(_ input: String) -> String {
         let inputData = Data(input.utf8)
         let hashedData = SHA512.hash(data: inputData)
         return hashedData.compactMap { String(format: "%02x", $0) }.joined()
     }
 
-    public func sha384(input: String) -> String {
+    public func sha384(_ input: String) -> String {
         let inputData = Data(input.utf8)
         let hashedData = SHA384.hash(data: inputData)
         return hashedData.compactMap { String(format: "%02x", $0) }.joined()

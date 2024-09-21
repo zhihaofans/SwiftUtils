@@ -8,7 +8,7 @@ import Foundation
 import NaturalLanguage
 public class FenciUtil {
     private let tokenizer: NLTokenizer
-    public init(fenciUnit: NLTokenUnit = .word) {
+    public init(_ fenciUnit: NLTokenUnit = .word) {
         self.tokenizer = NLTokenizer(unit: fenciUnit)
     }
     public func fenci(_ text: String) -> [String] {

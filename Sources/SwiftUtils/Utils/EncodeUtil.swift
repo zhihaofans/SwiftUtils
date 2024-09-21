@@ -10,27 +10,27 @@ import Foundation
 public class EncodeUtil {
     public init() {}
 
-    public func urlEncode(oldString: String) -> String {
+    public func urlEncode(_ oldString: String) -> String {
         return oldString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? oldString
     }
 
-    public func urlDecode(oldString: String) -> String {
+    public func urlDecode(_ oldString: String) -> String {
         return oldString.removingPercentEncoding ?? oldString
     }
 
-    public func base64Encode(oldString: String) -> String {
+    public func base64Encode(_ oldString: String) -> String {
         let data = oldString.data(using: .utf8)
         return data?.base64EncodedString() ?? oldString
     }
 
-    public func base64Decode(oldString: String) -> String {
+    public func base64Decode(_ oldString: String) -> String {
         guard let data = Data(base64Encoded: oldString) else {
             return oldString
         }
         return String(data: data, encoding: .utf8) ?? oldString
     }
 
-    public func base64ImageEncode(imageData: Data) -> String {
+    public func base64ImageEncode(_ imageData: Data) -> String {
         // 将图片转换为 JPEG 格式的 Data (也可以选择转换为 PNG 格式)
         /* guard let imageData = image.jpegData(compressionQuality: 1.0) else {
              return nil

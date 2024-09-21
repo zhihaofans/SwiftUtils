@@ -11,11 +11,11 @@ public class UserDefaultUtil {
     private let userDefault = UserDefaults()
     public init() {}
 
-    public func hasValue(key: String) -> Bool {
+    public func hasValue(_ key: String) -> Bool {
         return self.userDefault.object(forKey: key) != nil
     }
 
-    public func remove(key: String) {
+    public func remove(_ key: String) {
         self.userDefault.removeObject(forKey: key)
     }
 
@@ -23,7 +23,7 @@ public class UserDefaultUtil {
         self.userDefault.setValue(value, forKey: key)
     }
 
-    public func getString(key: String) -> String? {
+    public func getString(_ key: String) -> String? {
         return self.userDefault.string(forKey: key)
     }
 
@@ -35,7 +35,7 @@ public class UserDefaultUtil {
         self.userDefault.setValue(value, forKey: key)
     }
 
-    public func getInt(key: String) -> Int? {
+    public func getInt(_ key: String) -> Int? {
         return self.userDefault.integer(forKey: key)
     }
 
@@ -43,7 +43,7 @@ public class UserDefaultUtil {
         self.userDefault.setValue(value, forKey: key)
     }
 
-    public func getFloat(key: String) -> Float? {
+    public func getFloat(_ key: String) -> Float? {
         return self.userDefault.float(forKey: key)
     }
 
@@ -51,11 +51,11 @@ public class UserDefaultUtil {
         self.userDefault.setValue(value, forKey: key)
     }
 
-    public func getArrayString(key: String) -> [String] {
+    public func getArrayString(_ key: String) -> [String] {
         return self.userDefault.array(forKey: key) as? [String] ?? []
     }
 
-    public func getArrayLength(key: String) -> Int {
+    public func getArrayLength(_ key: String) -> Int {
         return self.userDefault.array(forKey: key)?.count ?? 0
     }
 
@@ -63,7 +63,7 @@ public class UserDefaultUtil {
         self.userDefault.setValue(value, forKey: key)
     }
 
-    public func getBool(key: String) -> Bool? {
+    public func getBool(_ key: String) -> Bool? {
         return self.userDefault.bool(forKey: key)
     }
 }

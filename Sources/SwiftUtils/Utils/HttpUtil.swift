@@ -14,19 +14,19 @@ public class HttpUtil {
         self.headers=["User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_5 like Mac OS X) AppleWebKit/630.3 (KHTML, like Gecko) Version/14.5.21 Mobile/4QKLI4 Safari/630.3"]
     }
 
-    public func setHeader(newHeaders: HTTPHeaders) {
+    public func setHeader(_ newHeaders: HTTPHeaders) {
         self.headers=newHeaders
     }
 
-    public func setUA(newValue: String) {
+    public func setUA(_ newValue: String) {
         self.headers.update(name: "User-Agent", value: newValue)
     }
 
-    public func setCookie(newValue: String) {
+    public func setCookie(_ newValue: String) {
         self.headers.update(name: "Cookie", value: newValue)
     }
 
-    public func get(url: String, callback: @escaping (String)->Void, fail: @escaping (String)->Void) {
+    public func get(_ url: String, callback: @escaping (String)->Void, fail: @escaping (String)->Void) {
         AF.request(url, headers: self.headers).responseString { response in
             switch response.result {
             case let .success(value):
@@ -38,7 +38,7 @@ public class HttpUtil {
         }
     }
 
-    public func post(url: String, callback: @escaping (String)->Void, fail: @escaping (String)->Void) {
+    public func post(_ url: String, callback: @escaping (String)->Void, fail: @escaping (String)->Void) {
         AF.request(url, method: .post, headers: self.headers).responseString { response in
             switch response.result {
             case let .success(value):

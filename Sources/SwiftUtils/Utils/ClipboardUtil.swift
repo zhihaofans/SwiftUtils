@@ -28,7 +28,7 @@ public class ClipboardUtil {
         #endif
     }
 
-    public func setString(str: String) {
+    public func setString(_ str: String) {
         #if os(macOS)
         pasteboard.clearContents() // 清除剪贴板当前内容
         pasteboard.setString(str, forType: .string)
@@ -70,12 +70,12 @@ public class ClipboardUtil {
     #endif
 
     #if os(macOS)
-    public func setImage(img: NSImage) {
+    public func setImage(_ img: NSImage) {
         pasteboard.clearContents() // 清除剪贴板上的内容
         pasteboard.writeObjects([img]) // 写入图像
     }
     #else
-    public func setImage(img: UIImage) {
+    public func setImage(_ img: UIImage) {
         pasteboard.image = img
     }
     #endif
@@ -105,7 +105,7 @@ public class ClipboardUtil {
         #endif
     }
 
-    public func setUrl(url: URL) {
+    public func setUrl(_ url: URL) {
         #if os(macOS)
         pasteboard.clearContents() // 首先清除剪贴板上的内容
         pasteboard.writeObjects([url as NSURL]) // 将 URL 写入剪贴板
@@ -141,7 +141,7 @@ public class ClipboardUtil {
     }
     #endif
     #if os(macOS)
-    public func setColor(color: NSColor) {
+    public func setColor(_ color: NSColor) {
         pasteboard.clearContents() // 清除剪贴板上的内容
 
         // 使用新 API 归档 NSColor 对象
@@ -150,7 +150,7 @@ public class ClipboardUtil {
         }
     }
     #else
-    public func setColor(color: UIColor) {
+    public func setColor(_ color: UIColor) {
         UIPasteboard.general.color = color
     }
     #endif
