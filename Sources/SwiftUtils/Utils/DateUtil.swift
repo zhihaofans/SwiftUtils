@@ -47,7 +47,7 @@ public class DateUtil {
 
     public func getNowTimeStr() -> String {
         // 转换为 Date 对象
-        return self.timestampToTimeStr(timestamp: Date().timeIntervalSince1970) // 输出 "2020-05-23 19:47:52"
+        return self.timestampToTimeStr(Date().timeIntervalSince1970) // 输出 "2020-05-23 19:47:52"
     }
 
     public func isYesterday(_ timestampInt: Int) {
