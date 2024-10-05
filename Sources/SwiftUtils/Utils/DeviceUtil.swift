@@ -103,6 +103,7 @@ public class DeviceUtil {
                 let lines = output.split(separator: "\n")
                 var batteryFull = 0
                 var batteryNow = 0
+                var batteryLevel = 0
                 for line in lines {
                     // 查找并打印剩余电量
                     if line.contains("Charge Remaining (mAh):") {
@@ -122,12 +123,18 @@ public class DeviceUtil {
                         print(line.trimmingCharacters(in: .whitespaces))
                         batteryFull = Int(line.trimmingCharacters(in: .whitespaces)) ?? -1
                     }
+                    // 查找并打印满充电量
+                    if line.contains("State of Charge (%):") {
+                        print(line.trimmingCharacters(in: .whitespaces))
+                        batteryLevel = Int(line.trimmingCharacters(in: .whitespaces)) ?? -1
+                    }
                 }
-                if batteryNow <= 0 || batteryFull <= 0 {
-                    return -1
-                } else {
-                    return Int((batteryNow / batteryFull) * 100)
-                }
+//                if batteryNow <= 0 || batteryFull <= 0 {
+//                    return -1
+//                } else {
+//                    return Int((batteryNow / batteryFull) * 100)
+//                }
+                return batteryLevel
             } else {
                 return -1
             }
