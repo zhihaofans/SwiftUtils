@@ -98,6 +98,7 @@ public class DeviceUtil {
             // 从管道读取数据，转换为字符串
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
             if let output = String(data: data, encoding: .utf8) {
+                print(output)
                 // 解析电池信息
                 let lines = output.split(separator: "\n")
                 var batteryFull = 0
@@ -122,7 +123,7 @@ public class DeviceUtil {
                         batteryFull = Int(line.trimmingCharacters(in: .whitespaces)) ?? -1
                     }
                 }
-                if batteryNow < 0 || batteryFull < 0 {
+                if batteryNow <= 0 || batteryFull <= 0 {
                     return -1
                 } else {
                     return Int((batteryNow / batteryFull) * 100)
