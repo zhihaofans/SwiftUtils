@@ -15,22 +15,29 @@ import AppKit
 public class AppUtil {
     public init() {}
 
-    public func openUrl(_ urlString: String) async -> Bool {
+    public func openUrl(_ urlString: String) {
         if let url = URL(string: urlString) {
 #if canImport(UIKit)
-            return await UIApplication.shared.open(url, options: [:])
+            Task {
+                DispatchQueue.main.async {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+            }
 #else
-            return NSWorkspace.shared.open(url)
+            NSWorkspace.shared.open(url)
 #endif
         }
-        return false
     }
 
-    public func openUrl(_ url: URL) async -> Bool {
+    public func openUrl(_ url: URL) {
 #if canImport(UIKit)
-        return await UIApplication.shared.open(url, options: [:])
+        Task {
+            DispatchQueue.main.async {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
 #else
-        return NSWorkspace.shared.open(url)
+        NSWorkspace.shared.open(url)
 #endif
     }
 
