@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct ListItemLoadingView: View {
+public struct ListItemLoadingView: View {
     var title: String
     @Binding var isLoading: Bool
     var onClick: () -> Void
     var loadingColor: Color? = nil
-    var body: some View {
+    public var body: some View {
         Button(action: {
             if !isLoading {
                 isLoading = true
@@ -24,7 +24,7 @@ struct ListItemLoadingView: View {
                 // Spacer() // 占据剩余空间，将 ProgressView 推到右侧
                 if isLoading {
                     ProgressView()
-                    .tint(loadingColor)
+                        .tint(loadingColor)
                 }
             }
         }
