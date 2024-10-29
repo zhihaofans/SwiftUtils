@@ -14,7 +14,7 @@ public class DateUtil {
     }
 
     public func timestampToTimeStr(_ timestampInt: Int, format: String = "yyyy-MM-dd HH:mm:ss") -> String {
-        return self.timestampToTimeStr(Double(timestampInt))
+        return self.timestampToTimeStr(Double(timestampInt), format: format)
     }
 
     public func timestampToTimeStr(_ timestamp: Double, format: String = "yyyy-MM-dd HH:mm:ss") -> String {
