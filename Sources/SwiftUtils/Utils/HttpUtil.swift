@@ -1,6 +1,6 @@
 //
 //  HttpUtil.swift
-//  MacBox
+//
 //
 //  Created by zzh on 2024/7/23.
 //
@@ -38,8 +38,8 @@ public class HttpUtil {
         }
     }
 
-    public func post(_ url: String, callback: @escaping (String)->Void, fail: @escaping (String)->Void) {
-        AF.request(url, method: .post, headers: self.headers).responseString { response in
+    public func post(_ url: String, body: Parameters?=nil, callback: @escaping (String)->Void, fail: @escaping (String)->Void) {
+        AF.request(url, method: .post, parameters: body, headers: self.headers).responseString { response in
             switch response.result {
             case let .success(value):
                 callback(value)
@@ -49,5 +49,4 @@ public class HttpUtil {
             }
         }
     }
-
 }
