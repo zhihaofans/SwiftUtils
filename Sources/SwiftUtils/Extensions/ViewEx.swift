@@ -15,4 +15,13 @@ public extension View {
                 callback()
             }
     }
+
+    func setNavigationTitle(_ title: String) -> some View {
+        return self
+        #if os(iOS)
+            .navigationBarTitle(title, displayMode: .inline)
+        #else
+            .navigationTitle(title)
+        #endif
+    }
 }
