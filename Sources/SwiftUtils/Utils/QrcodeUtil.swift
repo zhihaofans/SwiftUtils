@@ -27,12 +27,14 @@ public class QrcodeUtil {
             return nil
         }
     #else
-        public func generateQRCode(from string: String) -> UIImage? {
+        public func generateQRCode(from string: String, scale: CGFloat = 5.0) -> UIImage? {
             let data = Data(string.utf8)
             filter.setValue(data, forKey: "inputMessage")
+            filter.setValue("H", forKey: "inputCorrectionLevel") // 高纠错级别
 
             if let qrCodeImage = filter.outputImage {
-                if let qrCodeCGImage = context.createCGImage(qrCodeImage, from: qrCodeImage.extent) {
+                let transformedImage = qrCodeImage.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+                if let qrCodeCGImage = context.createCGImage(transformedImage, from: transformedImage.extent) {
                     return UIImage(cgImage: qrCodeCGImage)
                 }
             }
