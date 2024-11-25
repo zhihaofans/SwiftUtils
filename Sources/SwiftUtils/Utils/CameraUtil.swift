@@ -8,10 +8,10 @@
 import AVFoundation
 import Foundation
 
-class CameraUtil {
-    init() {}
+public class CameraUtil {
+    public init() {}
 
-    func checkCameraPermissions(success: @escaping ()->Void, fail: @escaping (String)->Void) {
+    public func checkCameraPermissions(success: @escaping ()->Void, fail: @escaping (String)->Void) {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
             case .authorized:
                 success()
