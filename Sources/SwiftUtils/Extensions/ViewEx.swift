@@ -24,4 +24,21 @@ public extension View {
             .navigationTitle(title)
         #endif
     }
+    func showShareTextView(_ text: String) -> some View {
+        return self.sheet(isPresented: $isShareSheetPresented) {
+            ShareActivityView(activityItems: [item.text])
+        }
+    }
+}
+struct ShareActivityView: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    let applicationActivities: [UIActivity]? = nil
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        return UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
+        // No need to update the controller
+    }
 }
