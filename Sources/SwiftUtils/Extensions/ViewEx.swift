@@ -24,12 +24,14 @@ public extension View {
             .navigationTitle(title)
         #endif
     }
-    func showShareTextView(_ text: String) -> some View {
-        return self.sheet(isPresented: $isShareSheetPresented) {
-            ShareActivityView(activityItems: [item.text])
+
+    func showShareTextView(_ text: String, isPresented: Binding<Bool>) -> some View {
+        return sheet(isPresented: isPresented) {
+            ShareActivityView(activityItems: [text])
         }
     }
 }
+
 struct ShareActivityView: UIViewControllerRepresentable {
     let activityItems: [Any]
     let applicationActivities: [UIActivity]? = nil
