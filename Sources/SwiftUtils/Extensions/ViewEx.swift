@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SafariServices
 import SwiftUI
 
 public extension View {
@@ -30,8 +31,9 @@ public extension View {
             ShareActivityView(activityItems: [text])
         }
     }
+
     func showSafariWebPreviewView(_ safariUrlString: String, isPresented: Binding<Bool>) -> some View {
-    return sheet(isPresented: $isPresented) {
+        return sheet(isPresented: isPresented) {
             if let url = URL(string: safariUrlString) {
                 SafariWebPreviewView(url: url)
             } else {
