@@ -30,6 +30,15 @@ public extension View {
             ShareActivityView(activityItems: [text])
         }
     }
+    func showSafariWebPreviewView(_ safariUrlString: String, isPresented: Binding<Bool>) -> some View {
+    return sheet(isPresented: $isPresented) {
+            if let url = URL(string: safariUrlString) {
+                SafariWebPreviewView(url: url)
+            } else {
+                Text("Invalid URL")
+            }
+        }
+    }
 }
 
 struct ShareActivityView: UIViewControllerRepresentable {
@@ -43,4 +52,14 @@ struct ShareActivityView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
         // No need to update the controller
     }
+}
+
+struct SafariWebPreviewView: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        return SFSafariViewController(url: url)
+    }
+
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
 }
