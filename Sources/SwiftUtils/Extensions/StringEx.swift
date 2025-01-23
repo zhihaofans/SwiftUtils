@@ -43,6 +43,14 @@ public extension String {
     func removeLeftSpaceAndNewLine() -> String {
         return String(self.toSubstring.drop(while: { $0 == " " || $0 == "\n" }))
     }
+    
+    var urlEncode: Substring {
+        return EncodeUtil.urlEncode(self)
+    }
+    
+    var urlDecode: Substring {
+        return EncodeUtil.urlDecode(self)
+    }
 }
 
 public extension String? {
