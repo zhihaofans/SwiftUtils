@@ -27,10 +27,10 @@ public class HashUtil {
         let hashedData = SHA384.hash(data: inputData)
         return hashedData.compactMap { String(format: "%02x", $0) }.joined()
     }
-    
+
     public func sha1(_ input: String) -> String {
         let inputData = Data(input.utf8)
         let hashedData = Insecure.SHA1.hash(data: inputData)
-        return hashed.map { String(format: "%02hhx", $0) }.joined()
+        return hashedData.map { String(format: "%02hhx", $0) }.joined()
     }
 }
