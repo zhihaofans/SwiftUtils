@@ -122,4 +122,11 @@ public class AppUtil {
         }
         return "Unknown version"
     }
+    public func getAppMinimumOSVersion() -> String? {
+        if let version = Bundle.main.object(forInfoDictionaryKey: "MinimumOSVersion") as? String,
+        {
+            return version
+        }
+        return nil
+    }
 }
