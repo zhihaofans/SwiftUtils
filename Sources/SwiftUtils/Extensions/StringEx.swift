@@ -76,6 +76,18 @@ public extension String {
     var sha512: String {
         return HashUtil().sha512(self)
     }
+    func uppercasedFirst() -> String {
+        guard !isEmpty else { return self }
+        let firstLetter = self.prefix(1).uppercased()
+        let remainingLetters = self.dropFirst()
+        return firstLetter + remainingLetters
+    }
+    func lowercasedFirst() -> String {
+        guard !isEmpty else { return self }
+        let firstLetter = self.prefix(1).lowercased()
+        let remainingLetters = self.dropFirst()
+        return firstLetter + remainingLetters
+    }
 }
 
 public extension String? {
