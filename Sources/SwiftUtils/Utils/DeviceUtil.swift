@@ -156,4 +156,21 @@ public class DeviceUtil {
         }
         #endif
     }
+    public func getScreenBrightness() -> Double {
+        #if os(iOS)
+        return UIScreen.main.brightness
+        #else
+        // TODO: 支持macOS
+        return 0
+        #endif
+    }
+    public func setScreenBrightness(brightness: Double) {
+        #if os(iOS)
+         if brightness >=0.0 || brightness <= 1.0 {
+             UIScreen.main.brightness = brightness
+         }
+        #else
+        // TODO: 支持macOS
+        #endif
+    }
 }
