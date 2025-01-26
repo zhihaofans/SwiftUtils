@@ -5,8 +5,8 @@
 //  Created by zzh on 2024/7/22.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 #if canImport(UIKit)
 import UIKit
@@ -158,6 +158,7 @@ public class DeviceUtil {
         }
         #endif
     }
+
     public func getScreenBrightness() -> Double {
         #if os(iOS)
         return UIScreen.main.brightness
@@ -166,44 +167,41 @@ public class DeviceUtil {
         return 0
         #endif
     }
+
     public func setScreenBrightness(brightness: Double) {
         #if os(iOS)
-         if brightness >=0.0 || brightness <= 1.0 {
-             UIScreen.main.brightness = brightness
-         }
+        if brightness >= 0.0 || brightness <= 1.0 {
+            UIScreen.main.brightness = brightness
+        }
         #else
         // TODO: 支持macOS
         #endif
     }
-    
+
     public func toggleFlashlight() -> Bool {
         guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else {
             // 如果设备不支持闪光灯，返回 false
             return false
         }
-        
+
         do {
             try device.lockForConfiguration()
-            
+
             if device.torchMode == .on {
                 // 如果闪光灯已经打开，关闭它
                 device.torchMode = .off
                 device.unlockForConfiguration()
-                return true  // 成功关闭
+                return true // 成功关闭
             } else {
                 // 如果闪光灯没有打开，打开它
-                try device.setTorchModeOn(level: 1.0)  // 最大亮度
+                try device.setTorchModeOn(level: 1.0) // 最大亮度
                 device.unlockForConfiguration()
-                return true  // 成功打开
+                return true // 成功打开
             }
         } catch {
             // 捕获错误，如果无法操作闪光灯，返回 false
             print("无法操作闪光灯: \(error)")
             return false
         }
-    }
-    
-    public func toggleFlashlight() -> Bool {
-        return toggleFlashlight
     }
 }
