@@ -21,6 +21,10 @@ public extension String {
         return URL(string: self) != nil
     }
 
+    var isFloat: Bool {
+        return Float(self) != nil
+    }
+
     var toSubstring: Substring {
         return self[self.startIndex...]
     }
@@ -76,12 +80,14 @@ public extension String {
     var sha512: String {
         return HashUtil().sha512(self)
     }
+
     func uppercasedFirst() -> String {
         guard !isEmpty else { return self }
         let firstLetter = self.prefix(1).uppercased()
         let remainingLetters = self.dropFirst()
         return firstLetter + remainingLetters
     }
+
     func lowercasedFirst() -> String {
         guard !isEmpty else { return self }
         let firstLetter = self.prefix(1).lowercased()
