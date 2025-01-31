@@ -67,4 +67,34 @@ public class NetworkUtil {
         case 5G,4G,3G,2G
         var id: Self { self }
     }
+    public func isWifi (callback: @escaping (Bool)->Void){
+        self.getNetworkType { networkType in
+            callback(networkType == .wifi)
+        }
+    }
+    public func is5G (callback: @escaping (Bool)->Void){
+        callback(self.getCellularType()  == .5G)
+    }
+    public func is4G (callback: @escaping (Bool)->Void){
+        callback(self.getCellularType()  == .4G)
+    }
+    public func is3G (callback: @escaping (Bool)->Void){
+        callback(self.getCellularType()  == .3G)
+    }
+    public func is2G (callback: @escaping (Bool)->Void){
+        callback(self.getCellularType()  == .2G)
+    }
+    public func is5G () -> Bool{
+        return self.getCellularType()  == .5G
+    }
+    public func is4G () -> Bool{
+        return self.getCellularType()  == .4G
+    }
+    public func is3G () -> Bool{
+        return self.getCellularType()  == .3G
+    }
+    public func is2G () -> Bool{
+        return self.getCellularType()  == .2G
+    }
+    
 }
