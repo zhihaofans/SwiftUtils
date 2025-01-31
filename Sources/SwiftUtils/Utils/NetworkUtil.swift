@@ -7,14 +7,13 @@
 
 import Foundation
 import Network
-
+import CoreTelephony
 public class NetworkUtil {
     public init() {}
     public func getNetworkType(callback: @escaping (InterfaceType?)->Void, fail: @escaping (String)->Void) {
         do {
             let monitor = NWPathMonitor()
             let queue = DispatchQueue.global(qos: .background)
-        
             monitor.pathUpdateHandler = { path in
                 if path.usesInterfaceType(.wifi) {
                     print("当前网络：Wi-Fi")
@@ -29,6 +28,7 @@ public class NetworkUtil {
                     print("无网络连接或未知网络")
                     callback(nil)
                 }
+                monitor.cancel() // **获取一次后立即停止监听**
             }
             monitor.start(queue: queue)
         } catch {
@@ -36,26 +36,28 @@ public class NetworkUtil {
             fail(error.localizedDescription)
         }
     }
-    public func getCellularType(callback: @escaping (CellularNetworkType?)->Void, fail: @escaping (String)->Void) {
+    public func getCellularType() -> CellularNetworkType? {
         let networkInfo = CTTelephonyNetworkInfo()
         if let currentRadioTech = networkInfo.serviceCurrentRadioAccessTechnology?.values.first {
             switch currentRadioTech {
             case CTRadioAccessTechnologyNR, CTRadioAccessTechnologyNRNSA:
                 print("当前网络：5G")
-                callback(.5G)
+                return .5G
             case CTRadioAccessTechnologyLTE:
                 print("当前网络：4G")
-                callback(.4G)
+                return .4G
             case CTRadioAccessTechnologyLTE:
                 print("当前网络：3G")
-                callback(.3G)
+                return .3G
             case CTRadioAccessTechnologyEdge:
                 print("当前网络：2G")
-                callback(.2G)
+                return .2G
             default:
                 print("当前网络：未知蜂窝网络")
-                callback(nil)
+                return nil
             }
+        } else {
+            return nil
         }
     }
     public enum CellularNetworkType: String, CaseIterable, Identifiable {
