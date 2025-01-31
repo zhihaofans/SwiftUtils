@@ -158,7 +158,12 @@ public class DeviceUtil {
         }
         #endif
     }
-
+    public func isDeviceBatteryCharging() -> Bool {
+    UIDevice.current.isBatteryMonitoringEnabled = true // 开启监测
+    let charging = UIDevice.current.batteryState == .charging || UIDevice.current.batteryState == .full
+    UIDevice.current.isBatteryMonitoringEnabled = false // 关闭监测，避免不必要的监听
+        return charging
+    }
     public func getScreenBrightness() -> Double {
         #if os(iOS)
         return UIScreen.main.brightness
