@@ -24,6 +24,9 @@ public class NetworkUtil {
                 } else if path.usesInterfaceType(.other) {
                     print("当前网络：其他")
                     callback(.other)
+                } else if path.usesInterfaceType(.wiredEthernet) {
+                    print("当前网络：以太网")
+                    callback(.wiredEthernet)
                 } else {
                     print("无网络连接或未知网络")
                     callback(nil)
