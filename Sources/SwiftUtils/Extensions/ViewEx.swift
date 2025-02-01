@@ -42,9 +42,14 @@ public extension View {
         }
     }
 }
+
 public extension TextField {
     func setDecimalType() -> some View {
-        return self.keyboardType(.decimalPad) // 设置为小数键盘
+        return keyboardType(.decimalPad) // 设置为小数键盘
+    }
+
+    func setNumberType() -> some View {
+        return keyboardType(.numberPad) // 设置为小数键盘
     }
 }
 
