@@ -42,6 +42,11 @@ public extension View {
         }
     }
 }
+public extension TextField {
+    func setDecimalType() -> some View {
+        return self.keyboardType(.decimalPad) // 设置为小数键盘
+    }
+}
 
 struct ShareActivityView: UIViewControllerRepresentable {
     let activityItems: [Any]
