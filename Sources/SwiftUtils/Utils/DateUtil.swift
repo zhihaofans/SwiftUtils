@@ -14,7 +14,7 @@ public class DateUtil {
     }
 
     public func timestampToTimeStr(_ timestampInt: Int, format: String = "yyyy-MM-dd HH:mm:ss") -> String {
-        return self.timestampToTimeStr(Double(timestampInt), format: format)
+        return timestampToTimeStr(Double(timestampInt), format: format)
     }
 
     public func timestampToTimeStr(_ timestamp: Double, format: String = "yyyy-MM-dd HH:mm:ss") -> String {
@@ -35,14 +35,15 @@ public class DateUtil {
 
     public func getNowTimeStr() -> String {
         // 转换为 Date 对象
-        return self.timestampToTimeStr(Date().timeIntervalSince1970) // 输出 "2020-05-23 19:47:52"
+        return timestampToTimeStr(Date().timestamp) // 输出 "2020-05-23 19:47:52"
     }
 
     public func isYesterday(_ timestampInt: Int) {
         // TODO:
-        let date = Date(timeIntervalSince1970: Double(timestampInt))
+        let date = Date(timeIntervalSince1970: timestampInt.toTimeInterval)
     }
-    public func Date(_ timestamp:Int){
-        return Date(timeIntervalSince1970: timestamp)
+
+    public func getDate(_ timestamp: Int) -> Date {
+        return Date(timeIntervalSince1970: timestamp.toTimeInterval)
     }
 }
