@@ -42,4 +42,7 @@ public class DateUtil {
         // TODO:
         let date = Date(timeIntervalSince1970: Double(timestampInt))
     }
+    public func Date(_ timestamp:Int){
+        return Date(timeIntervalSince1970: timestamp)
+    }
 }
