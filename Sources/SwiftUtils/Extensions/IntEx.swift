@@ -15,4 +15,8 @@ public extension Int {
     var toDouble: Double {
         return Double(self)
     }
+
+    var toTimeInterval: TimeInterval {
+        return TimeInterval(self)
+    }
 }
