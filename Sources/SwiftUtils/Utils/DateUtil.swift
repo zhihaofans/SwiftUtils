@@ -38,11 +38,6 @@ public class DateUtil {
         return timestampToTimeStr(Date().timestamp) // 输出 "2020-05-23 19:47:52"
     }
 
-    public func isYesterday(_ timestampInt: Int) {
-        // TODO:
-        let date = Date(timeIntervalSince1970: timestampInt.toTimeInterval)
-    }
-
     public func getDate(_ timestamp: Int) -> Date {
         return Date(timeIntervalSince1970: timestamp.toTimeInterval)
     }

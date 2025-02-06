@@ -69,7 +69,7 @@ public extension Date {
         formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
         formatter.timeZone = TimeZone(abbreviation: "Asia/Shanghai") // 中央标准时间
         let dateString = formatter.string(from: self)
-        return dateString // 输出 "2020-05-23 19:47:52"
+        return dateString // 输出 "2020-05-23 19"
     }
 
     var timestampToTimeStrDay: String {
@@ -78,6 +78,17 @@ public extension Date {
         formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
         formatter.timeZone = TimeZone(abbreviation: "Asia/Shanghai") // 中央标准时间
         let dateString = formatter.string(from: self)
-        return dateString // 输出 "2020-05-23 19:47:52"
+        return dateString // 输出 "2020-05-23"
+    }
+
+    func isYesterday(date: Date) -> Bool {
+        let calendar = Calendar.current
+        if calendar.isDate(date, inSameDayAs: self) {
+            return false
+        }
+        let startOfDay1 = calendar.startOfDay(for: self)
+        let startOfDay2 = calendar.startOfDay(for: date)
+        // 如果 date1 是 date2 的前一天
+        return calendar.isDate(startOfDay1, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: startOfDay2)!)
     }
 }
