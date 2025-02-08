@@ -7,6 +7,7 @@
 
 import AVFoundation
 import Foundation
+import LocalAuthentication
 
 #if canImport(UIKit)
 import UIKit
@@ -208,5 +209,9 @@ public class DeviceUtil {
             print("无法操作闪光灯: \(error)")
             return false
         }
+    }
+    func hasFaceID() -> Bool {
+        var context = LAContext()
+        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) && context.biometryType == .faceID
     }
 }
