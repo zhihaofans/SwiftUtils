@@ -41,18 +41,14 @@ class FaceIDTouchIDAuthenticator: ObservableObject {
         var error: NSError?
         // 检查设备是否支持 Touch ID 或 Face ID
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            if context.biometryType == .touchID {
+            if context.biometryType == .touchID || context.biometryType == .faceID {
                 // 设备支持 Touch ID
-                let reason = title
-
-                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, error in
+                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: title) { success, error in
                     DispatchQueue.main.async {
                         print(error?.localizedDescription ?? "验证失败")
                         callback(success)
                     }
                 }
-            } else if context.biometryType == .faceID {
-                fail("当前设备不支持 Touch ID，支持的是 Face ID")
             } else {
                 fail("设备不支持生物识别")
             }
