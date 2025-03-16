@@ -25,17 +25,17 @@ public class NotificationUtil {
         }
     }
 
-    public func sendTextNotification(title: String, body: String, timeInterval: Double = 60, success: @escaping () -> Void, fail: @escaping (String) -> Void) {
+    public func sendTextNotification(title: String, body: String, timeInterval: Double = 60, success: @escaping (String) -> Void, fail: @escaping (String) -> Void) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
-
+        let identifier = UUID().uuidString
         // 设置触发时间（timeInterval是几秒后）
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
 
         // 创建通知请求
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
 
         // 添加通知到通知中心
         UNUserNotificationCenter.current().add(request) { error in
@@ -44,16 +44,17 @@ public class NotificationUtil {
                 fail(error.localizedDescription)
             } else {
                 print("✅ 通知已成功发送！")
-                success()
+                success(identifier)
             }
         }
     }
 
-    public func sendImageNotification(title: String, body: String, imageURL: URL, timeInterval: Double = 60, success: @escaping () -> Void, fail: @escaping (String) -> Void) {
+    public func sendImageNotification(title: String, body: String, imageURL: URL, timeInterval: Double = 60, success: @escaping (String) -> Void, fail: @escaping (String) -> Void) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
+        let identifier = UUID().uuidString
 
         // 添加图片附件
 //        if let imageURL = Bundle.main.url(forResource: "example", withExtension: "jpg") {
@@ -69,7 +70,7 @@ public class NotificationUtil {
         }
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
@@ -77,8 +78,29 @@ public class NotificationUtil {
                 fail(error.localizedDescription)
             } else {
                 print("✅ 通知已成功发送！")
-                success()
+                success(identifier)
             }
         }
+    }
+
+    public func removeSentNotification(identifier: String) {
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [identifier])
+    }
+
+    public func removeAllSentNotifications() {
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+    }
+
+    public func removeUnsentNotification(identifier: String) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
+    }
+
+    public func removeAllUnsentNotifications() {
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+    }
+
+    public func removeAllNotifications() {
+        removeAllSentNotifications()
+        removeAllUnsentNotifications()
     }
 }
