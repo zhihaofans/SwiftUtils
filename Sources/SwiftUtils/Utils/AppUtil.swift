@@ -134,4 +134,11 @@ public class AppUtil {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
+    public func isDarkColorMode() -> Bool {
+      #if os(macOS)
+      return false
+      #else
+      return UITraitCollection.current.userInterfaceStyle == .dark
+      #endif
+    }
 }
