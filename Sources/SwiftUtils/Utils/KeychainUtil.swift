@@ -28,7 +28,7 @@ public class KeychainUtil {
             print("Item updated successfully.")
             return true
         } else {
-            print("Failed to update item with error code: \(status).")
+            print("Failed to update item with error code: \(status), and id: \(key).")
             return false
         }
     }
@@ -48,7 +48,7 @@ public class KeychainUtil {
             print("Item save successfully.")
             return true
         } else {
-            print("Failed to save item with error code: \(status).")
+            print("Failed to save item with error code: \(status), and id: \(key).")
             return false
         }
     }
@@ -66,7 +66,7 @@ public class KeychainUtil {
             print("Item deleted successfully.")
             return true
         } else {
-            print("Failed to delete item with error code: \(status).")
+            print("Failed to delete item with error code: \(status), and id: \(key).")
             return false
         }
     }
