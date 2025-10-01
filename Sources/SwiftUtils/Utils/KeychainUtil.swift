@@ -47,6 +47,9 @@ public class KeychainUtil {
         if status == errSecSuccess {
             print("Item save successfully.")
             return true
+        } else if status == errSecDuplicateItem {
+            print("save failed (status == errSecDuplicateItem), use update, id: \(key).")
+            return self.update(forKey: key, value: value)
         } else {
             print("Failed to save item with error code: \(status), and id: \(key).")
             return false
