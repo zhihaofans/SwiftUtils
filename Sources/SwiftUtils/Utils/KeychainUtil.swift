@@ -43,7 +43,14 @@ public class KeychainUtil {
         ]
 
         let status = SecItemAdd(query as CFDictionary, nil)
-        return status == errSecSuccess
+        // 检查操作是否成功
+        if status == errSecSuccess {
+            print("Item save successfully.")
+            return true
+        } else {
+            print("Failed to save item with error code: \(status).")
+            return false
+        }
     }
 
     public func remove(forKey key: String) -> Bool {

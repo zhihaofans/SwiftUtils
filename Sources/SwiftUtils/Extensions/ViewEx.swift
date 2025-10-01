@@ -25,7 +25,7 @@ public extension View {
             .navigationTitle(title)
         #endif
     }
-
+#if os(iOS)
     func showShareTextView(_ text: String, isPresented: Binding<Bool>) -> some View {
         return sheet(isPresented: isPresented) {
             ShareActivityView(activityItems: [text])
@@ -41,6 +41,7 @@ public extension View {
             }
         }
     }
+    #endif
 }
 
 public extension TextField {

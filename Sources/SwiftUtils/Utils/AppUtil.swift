@@ -129,34 +129,44 @@ public class AppUtil {
         }
         return nil
     }
+
     public func openAppSettings() {
+#if os(iOS)
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
+#endif
     }
+
     public func isDarkColorMode() -> Bool {
-      #if os(macOS)
-      return false
-      #else
-      return UITraitCollection.current.userInterfaceStyle == .dark
-      #endif
+#if os(macOS)
+        return false
+#else
+        return UITraitCollection.current.userInterfaceStyle == .dark
+#endif
     }
+
     public func checkBackgroundRefreshPermission() -> Bool {
-      //Info.plist 需要 UIBackgroundModes 才能后台运行
-    let status = UIApplication.shared.backgroundRefreshStatus
-    switch status {
-    case .available:
-        print("✅ 后台 App 刷新已启用")
-        return true
-    case .denied:
-        print("❌ 后台 App 刷新被用户关闭")
+#if os(iOS)
+
+        // Info.plist 需要 UIBackgroundModes 才能后台运行
+        let status = UIApplication.shared.backgroundRefreshStatus
+        switch status {
+        case .available:
+            print("✅ 后台 App 刷新已启用")
+            return true
+        case .denied:
+            print("❌ 后台 App 刷新被用户关闭")
+            return false
+        case .restricted:
+            print("⛔ 后台 App 刷新受限制（如家长控制）")
+            return false
+        @unknown default:
+            print("❓ 未知的后台刷新状态")
+            return false
+        }
+#else
         return false
-    case .restricted:
-        print("⛔ 后台 App 刷新受限制（如家长控制）")
-        return false
-    @unknown default:
-        print("❓ 未知的后台刷新状态")
-        return false
+#endif
     }
-  }
 }
