@@ -129,17 +129,33 @@ public final class NetworkUtil {
         #if os(iOS) || targetEnvironment(macCatalyst)
         let networkInfo = CTTelephonyNetworkInfo()
 
-        // iOS 12+ 使用 service* API 支持多 SIM
+        // ✅ 优先使用 iOS 12.1+ 的多卡 API
         let radioTech: String? = {
-            if let values = networkInfo.serviceCurrentRadioAccessTechnology?.values, let first = values.first {
-                return first
+            if #available(iOS 12.1, *) {
+                // 优先取当前蜂窝数据服务对应的制式
+                if let dataId = networkInfo.dataServiceIdentifier,
+                   let tech = networkInfo.serviceCurrentRadioAccessTechnology?[dataId]
+                {
+                    return tech
+                }
+                // 若未获取到 dataServiceIdentifier，则退回任意可用制式
+                if let any = networkInfo.serviceCurrentRadioAccessTechnology?.values.first {
+                    return any
+                }
+                return nil
+            } else if #available(iOS 12.0, *) {
+                // iOS 12.0：无 dataServiceIdentifier
+                return networkInfo.serviceCurrentRadioAccessTechnology?.values.first
+            } else {
+                // iOS 12 以下：旧 API（避免 warning）
+                return networkInfo.perform(NSSelectorFromString("currentRadioAccessTechnology"))?
+                    .takeUnretainedValue() as? String
             }
-            // 兜底（老系统）：
-            return networkInfo.currentRadioAccessTechnology
         }()
 
         guard let tech = radioTech else { return nil }
 
+        // ✅ 分类映射
         switch tech {
         // 5G
         case CTRadioAccessTechnologyNR, CTRadioAccessTechnologyNRNSA:
@@ -151,7 +167,7 @@ public final class NetworkUtil {
             print("当前网络：4G")
             return .is4G
 
-        // 3G（含 WCDMA/H/HSDPA/HSUPA/CDMAEVDO）
+        // 3G
         case CTRadioAccessTechnologyWCDMA,
              CTRadioAccessTechnologyHSDPA,
              CTRadioAccessTechnologyHSUPA,
@@ -162,7 +178,7 @@ public final class NetworkUtil {
             print("当前网络：3G")
             return .is3G
 
-        // 2G（GPRS/EDGE/CDMA1x）
+        // 2G
         case CTRadioAccessTechnologyGPRS,
              CTRadioAccessTechnologyEdge,
              CTRadioAccessTechnologyCDMA1x:
@@ -174,6 +190,7 @@ public final class NetworkUtil {
             return nil
         }
         #else
+        // ✅ macOS 没有蜂窝网络
         return nil
         #endif
     }
