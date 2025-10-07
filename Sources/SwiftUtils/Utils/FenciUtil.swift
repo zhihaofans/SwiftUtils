@@ -26,4 +26,24 @@ public class FenciUtil {
         }
         return tokens
     }
+    // 单词
+    public func fenciByWord() -> [String] {
+      self.tokenizer = NLTokenizer(unit: .word)
+      return self.fenci(text)
+    }
+    // 句子
+    public func fenciBySentence() -> [String] {
+      self.tokenizer = NLTokenizer(unit: .sentence)
+      return self.fenci(text)
+    }
+    // 段落
+    public func fenciByParagraph() -> [String] {
+      self.tokenizer = NLTokenizer(unit: .paragraph)
+      return self.fenci(text)
+    }
+    // 文档
+    public func fenciByDocument() -> [String] {
+      self.tokenizer = NLTokenizer(unit: .document)
+      return self.fenci(text)
+    }
 }

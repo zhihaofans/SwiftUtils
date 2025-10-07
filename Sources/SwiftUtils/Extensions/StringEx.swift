@@ -9,6 +9,10 @@ import Foundation
 import NaturalLanguage
 
 public extension String {
+    var array: Array {
+        return Array(self)
+    }
+    
     var isNotEmpty: Bool {
         return !self.isEmpty
     }
@@ -48,11 +52,20 @@ public extension String {
     func removeLeftSpaceAndNewLine() -> String {
         return String(self.toSubstring.drop(while: { $0 == " " || $0 == "\n" }))
     }
-
-    func fenci(_ fenciUnit: NLTokenUnit = .word) -> [String] {
-        return FenciUtil().fenci(self)
+    
+    func fenciByWord() -> [String] {
+        return FenciUtil().fenciByWord(self)
     }
 
+    func fenciBySentence() -> [String] {
+        return FenciUtil().fenciBySentence(self)
+    }
+    func fenciByParagraph() -> [String] {
+        return FenciUtil().fenciBySentence(self)
+    }
+    func fenciByDocument() -> [String] {
+        return FenciUtil().fenciByDocument(self)
+    }
     var urlEncode: String {
         return EncodeUtil().urlEncode(self)
     }
