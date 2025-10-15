@@ -82,6 +82,23 @@ public extension View {
         }
     }
     #endif
+    func inputAlert(
+        _ title: String,
+        placeholder: String = "",
+        text: Binding<String>,
+        isPresented: Binding<Bool>,
+        onConfirm: @escaping (String) -> Void
+    ) -> some View {
+        self.background(
+            InputAlertView(
+                title: title,
+                placeholder: placeholder,
+                inputText: text,
+                isPresented: isPresented,
+                callback: onConfirm
+            )
+        )
+    }
 }
 
 // MARK: - TextField helpers
