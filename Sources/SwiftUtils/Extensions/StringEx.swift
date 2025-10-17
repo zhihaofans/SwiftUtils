@@ -1,4 +1,3 @@
-//
 //  StringEx.swift
 //
 //
@@ -6,11 +5,10 @@
 //
 
 import Foundation
-import NaturalLanguage
 
 public extension String {
     var array: [String] {
-        return Array(arrayLiteral: self)
+        return [self]
     }
 
     var isNotEmpty: Bool {
@@ -30,7 +28,7 @@ public extension String {
     }
 
     var toSubstring: Substring {
-        return self[self.startIndex...]
+        return self[...]
     }
 
     func has(_ keyword: String) -> Bool {
@@ -42,15 +40,11 @@ public extension String {
     }
 
     func getString(_ defaultValue: String) -> String {
-        if self.count == 0 {
-            return defaultValue
-        } else {
-            return self
-        }
+        return self.isEmpty ? defaultValue : self
     }
 
     func removeLeftSpaceAndNewLine() -> String {
-        return String(self.toSubstring.drop(while: { $0 == " " || $0 == "\n" }))
+        return String(self.drop(while: { $0 == " " || $0 == "\n" }))
     }
 
     func fenciByWord() -> [String] {
@@ -62,7 +56,7 @@ public extension String {
     }
 
     func fenciByParagraph() -> [String] {
-        return FenciUtil().fenciBySentence(self)
+        return FenciUtil().fenciByParagraph(self)
     }
 
     func fenciByDocument() -> [String] {
@@ -114,7 +108,7 @@ public extension String {
 
 public extension String? {
     var isNotEmpty: Bool {
-        return (self ?? "").isEmpty == false
+        return self?.isEmpty == false
     }
 
     var isInt: Bool {
