@@ -62,10 +62,7 @@ public class AppUtil {
     }
 
     public func getAppVersion() -> String {
-        if let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
-            return version
-        }
-        return "Unknown"
+        return Bundle.main.versionString ?? "Unknown"
     }
 
     public func getAppName() -> String {
@@ -73,29 +70,19 @@ public class AppUtil {
     }
 
     public func getAppDisplayName() -> String? {
-        return Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
+        return Bundle.main.displayName
     }
 
     public func getAppBundleName() -> String? {
-        return Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
+        return Bundle.main.bundleName
     }
 
     public func getAppBuild() -> String {
-        if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
-            return build
-        }
-        return "Unknown"
+        return Bundle.main.buildString ?? "Unknown"
     }
 
     public func getAppIconName() -> String? {
-        if let iconsDictionary = Bundle.main.infoDictionary?["CFBundleIcons"] as? [String: Any],
-           let primaryIconsDictionary = iconsDictionary["CFBundlePrimaryIcon"] as? [String: Any],
-           let iconFiles = primaryIconsDictionary["CFBundleIconFiles"] as? [String],
-           let lastIcon = iconFiles.last
-        {
-            return lastIcon
-        }
-        return nil
+        return Bundle.main.appIconName
     }
 
 #if os(macOS)
@@ -115,8 +102,8 @@ public class AppUtil {
 #endif
 
     public func getAppVersionAndBuild() -> String {
-        if let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
-           let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+        if let version = Bundle.main.versionString,
+           let build = Bundle.main.buildString
         {
             return "Version \(version) (\(build))"
         }
@@ -124,10 +111,7 @@ public class AppUtil {
     }
 
     public func getAppMinimumOSVersion() -> String? {
-        if let version = Bundle.main.object(forInfoDictionaryKey: "MinimumOSVersion") as? String {
-            return version
-        }
-        return nil
+        Bundle.main.appMinimumOSVersion
     }
 
     public func openAppSettings() {
