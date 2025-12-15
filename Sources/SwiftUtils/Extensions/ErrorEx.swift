@@ -7,13 +7,13 @@
 
 import Foundation
 
-extension Error {
+public extension Error {
     var message: String {
         return (self as? LocalizedError)?.errorDescription ?? ""
     }
 }
 
-extension Error? {
+public extension Error? {
     var message: String {
         return (self as? LocalizedError)?.errorDescription ?? ""
     }

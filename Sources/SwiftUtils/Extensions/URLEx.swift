@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension URL {
+public extension URL {
     var isHTTPS: Bool {
       return self.scheme?.lowercased() == "https"
     }
