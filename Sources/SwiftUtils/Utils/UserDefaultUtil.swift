@@ -7,6 +7,7 @@
 
 import Foundation
 
+// 等同于SwiftUI里的 @AppStorage(key) var key: String = ""
 public class UserDefaultUtil {
     private let userDefault = UserDefaults()
     public init() {}

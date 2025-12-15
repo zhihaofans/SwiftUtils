@@ -143,13 +143,13 @@ public final class NetworkUtil {
                     return any
                 }
                 return nil
-            } else if #available(iOS 12.0, *) {
-                // iOS 12.0：无 dataServiceIdentifier
-                return networkInfo.serviceCurrentRadioAccessTechnology?.values.first
             } else {
-                // iOS 12 以下：旧 API（避免 warning）
-                return networkInfo.perform(NSSelectorFromString("currentRadioAccessTechnology"))?
-                    .takeUnretainedValue() as? String
+                // If the code reaches here, it means the OS is less than iOS 12.1.
+                // Given the warning "enclosing scope ensures guard will always be true" for iOS 12.0,
+                // this implies the deployment target is iOS 12.0.
+                // Therefore, if not iOS 12.1+, it must be iOS 12.0.
+                // iOS 12.0：无 dataServiceIdentifier，使用 serviceCurrentRadioAccessTechnology?.values.first
+                return networkInfo.serviceCurrentRadioAccessTechnology?.values.first
             }
         }()
 
@@ -195,3 +195,4 @@ public final class NetworkUtil {
         #endif
     }
 }
+
