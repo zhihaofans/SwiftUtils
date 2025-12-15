@@ -19,4 +19,14 @@ public extension Int {
     var toTimeInterval: TimeInterval {
         return TimeInterval(self)
     }
+
+    func setUserDefaults(_ key: String) {
+        UserDefaultUtil().setInt(key: key, value: self)
+    }
+}
+
+public extension Float {
+    func setUserDefaults(_ key: String) {
+        UserDefaultUtil().setFloat(key: key, value: self)
+    }
 }

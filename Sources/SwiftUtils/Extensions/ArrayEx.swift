@@ -26,3 +26,9 @@ public extension Array where Element: Equatable {
         return self.contains(item)
     }
 }
+
+public extension Array where Element == String {
+    func setUserDefaults(_ key: String) {
+        UserDefaultUtil().setArrayString(key: key, value: self)
+    }
+}

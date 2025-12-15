@@ -15,4 +15,8 @@ public extension Bool {
             falseStr
         }
     }
+
+    func setUserDefaults(_ key: String) {
+        UserDefaultUtil().setBool(key: key, value: self)
+    }
 }

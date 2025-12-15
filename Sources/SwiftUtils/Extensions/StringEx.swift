@@ -104,6 +104,10 @@ public extension String {
         let remainingLetters = self.dropFirst()
         return firstLetter + remainingLetters
     }
+
+    func setUserDefaults(_ key: String) {
+        UserDefaultUtil().setString(key: key, value: self)
+    }
 }
 
 public extension String? {
