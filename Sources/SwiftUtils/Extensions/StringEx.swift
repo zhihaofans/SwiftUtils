@@ -108,6 +108,10 @@ public extension String {
     func setUserDefaults(_ key: String) {
         UserDefaultUtil().setString(key: key, value: self)
     }
+
+    var httpToHttps: String {
+        return self.replace(of: "http://", with: "https://")
+    }
 }
 
 public extension String? {
