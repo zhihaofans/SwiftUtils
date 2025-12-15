@@ -24,9 +24,3 @@ public extension Int {
         UserDefaultUtil().setInt(key: key, value: self)
     }
 }
-
-public extension Float {
-    func setUserDefaults(_ key: String) {
-        UserDefaultUtil().setFloat(key: key, value: self)
-    }
-}
