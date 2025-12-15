@@ -90,7 +90,7 @@ public extension View {
         onConfirm: @escaping (String) -> Void
     ) -> some View {
         self.background(
-            InputAlertView(
+            AlertUtil.InputAlertView(
                 title: title,
                 placeholder: placeholder,
                 inputText: text,
