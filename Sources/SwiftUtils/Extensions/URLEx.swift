@@ -9,9 +9,10 @@ import Foundation
 
 public extension URL {
     var isHTTPS: Bool {
-      return self.scheme?.lowercased() == "https"
+        return self.scheme?.lowercased() == "https"
     }
+
     var isHTTP: Bool {
-      return self.scheme?.lowercased() == "http"
+        return self.scheme?.lowercased() == "http"
     }
 }

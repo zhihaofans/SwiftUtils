@@ -35,6 +35,21 @@ public extension Int {
         return Date(timeIntervalSince1970: self.toTimeInterval).pastTimeString
     }
 
+    var secondsToTimeLongString: String {
+        // 秒数转成文本时间（最大到小时如01:02:30）
+        guard self > 0 else { return "0秒" }
+
+        let hour = self / 3600
+        let minute = (self % 3600) / 60
+        let second = self % 60
+
+        if hour > 0 {
+            return String(format: "%d:%02d:%02d", hour, minute, second)
+        } else {
+            return String(format: "%d:%02d", minute, second)
+        }
+    }
+
     func setUserDefaults(_ key: String) {
         UserDefaultUtil().setInt(key: key, value: self)
     }

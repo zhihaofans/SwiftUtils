@@ -28,7 +28,7 @@ public extension Float {
         }
         return (self * pow(10, Float(decimalPlaces))).rounded(.down) / pow(10, Float(decimalPlaces))
     }
-    
+
     func setUserDefaults(_ key: String) {
         UserDefaultUtil().setFloat(key: key, value: self)
     }

@@ -89,7 +89,7 @@ public extension View {
         isPresented: Binding<Bool>,
         onConfirm: @escaping (String) -> Void
     ) -> some View {
-        self.background(
+        background(
             AlertUtil.InputAlertView(
                 title: title,
                 placeholder: placeholder,
