@@ -19,6 +19,17 @@ public extension Int {
     var toTimeInterval: TimeInterval {
         return TimeInterval(self)
     }
+    
+    var toShortNumberString: String {
+      // 一万开始转换为xx万（整数）
+      if count < 10000 {
+            return "\(count)"
+        } else {
+            let value = Double(count) / 10000
+            return String(format: "%.1f万", value)
+                .replacingOccurrences(of: ".0", with: "")
+        }
+    }
 
     func setUserDefaults(_ key: String) {
         UserDefaultUtil().setInt(key: key, value: self)
