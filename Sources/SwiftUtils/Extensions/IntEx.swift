@@ -19,16 +19,20 @@ public extension Int {
     var toTimeInterval: TimeInterval {
         return TimeInterval(self)
     }
-    
+
     var toShortNumberString: String {
-      // 一万开始转换为xx万（整数）
-      if count < 10000 {
-            return "\(count)"
+        // 一万开始转换为xx万（整数）
+        if self < 10000 {
+            return "\(self)"
         } else {
-            let value = Double(count) / 10000
+            let value = Double(self) / 10000
             return String(format: "%.1f万", value)
                 .replacingOccurrences(of: ".0", with: "")
         }
+    }
+
+    var pastTimeString: String {
+        return Date(timeIntervalSince1970: self.toTimeInterval).pastTimeString
     }
 
     func setUserDefaults(_ key: String) {

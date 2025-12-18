@@ -81,6 +81,41 @@ public extension Date {
         return dateString // 输出 "2020-05-23"
     }
 
+    var pastTimeString: String {
+        let date = self
+        let now = Date()
+
+        let calendar = Calendar.current
+        let diff = now.timeIntervalSince(date)
+
+        // 1️⃣ 一小时内
+        if diff < 3600 {
+            return "刚刚"
+        }
+
+        // 2️⃣ 1 - 24 小时
+        if diff < 86400 {
+            let hours = Int(diff / 3600)
+            return "\(hours)小时前"
+        }
+
+        let dateYear = calendar.component(.year, from: date)
+        let nowYear = calendar.component(.year, from: now)
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_CN")
+
+        // 3️⃣ 今年
+        if dateYear == nowYear {
+            formatter.dateFormat = "MM-dd"
+            return formatter.string(from: date)
+        }
+
+        // 4️⃣ 去年及以前
+        formatter.dateFormat = "yy-MM-dd"
+        return formatter.string(from: date)
+    }
+
     func isYesterday(date: Date) -> Bool {
         let calendar = Calendar.current
         if calendar.isDate(date, inSameDayAs: self) {
