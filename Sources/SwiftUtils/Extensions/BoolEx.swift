@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Bool {
-    func string(trueStr: String, falseStr: String) -> String {
+    func string(_ trueStr: String, _ falseStr: String) -> String {
         return if self {
             trueStr
         } else {
