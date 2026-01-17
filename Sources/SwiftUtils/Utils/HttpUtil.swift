@@ -26,8 +26,22 @@ public class HttpUtil {
         self.headers.update(name: "Cookie", value: newValue)
     }
 
+    public func get(_ url: String,
+                    params: Parameters? = nil, callback: @escaping (String)->Void, fail: @escaping (String)->Void)
+    {
+        AF.request(url, method: .get, parameters: params, headers: self.headers).responseString { response in
+            switch response.result {
+            case let .success(value):
+                callback(value)
+            case let .failure(error):
+                print(error)
+                fail("http.get:" + error.localizedDescription)
+            }
+        }
+    }
+
     public func get(_ url: String, callback: @escaping (String)->Void, fail: @escaping (String)->Void) {
-        AF.request(url, headers: self.headers).responseString { response in
+        AF.request(url, method: .get, headers: self.headers).responseString { response in
             switch response.result {
             case let .success(value):
                 callback(value)
@@ -40,6 +54,19 @@ public class HttpUtil {
 
     public func post(_ url: String, body: Parameters? = nil, callback: @escaping (String)->Void, fail: @escaping (String)->Void) {
         AF.request(url, method: .post, parameters: body, headers: self.headers).responseString { response in
+            switch response.result {
+            case let .success(value):
+                callback(value)
+            case let .failure(error):
+                print(error)
+                fail(error.localizedDescription)
+            }
+        }
+    }
+
+    public func postJSON(_ url: String, body: Parameters? = nil, callback: @escaping (String)->Void, fail: @escaping (String)->Void) {
+        AF.request(url, method: .post, parameters: body,
+                   encoding: JSONEncoding.default, headers: self.headers).responseString { response in
             switch response.result {
             case let .success(value):
                 callback(value)
