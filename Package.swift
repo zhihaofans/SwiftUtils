@@ -13,24 +13,33 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "SwiftUtils",
-            targets: ["SwiftUtils"]),
+            targets: ["SwiftUtils"]
+        ),
     ],
     dependencies: [
         // 添加一个依赖
         .package(url: "https://github.com/Alamofire/Alamofire", exact: "5.9.1"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.9.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "SwiftUtils",
-            dependencies: ["Alamofire"]),
+            dependencies: [
+                "Alamofire",
+                .product(name: "Logging", package: "swift-log"),
+            ]
+        ),
         .target(
             name: "CCWrapper",
             dependencies: [],
             path: "Sources/CCWrapper",
-            publicHeadersPath: "."),
+            publicHeadersPath: "."
+        ),
         .testTarget(
             name: "SwiftUtilsTests",
-            dependencies: ["SwiftUtils"]),
-    ])
+            dependencies: ["SwiftUtils"]
+        ),
+    ]
+)
