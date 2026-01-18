@@ -24,6 +24,38 @@ public enum LogUtil {
         error(message, metadata: metadata)
     }
 
+    public static func debug(_ message: Float, metadata: Logger.Metadata? = nil) {
+        logger.debug("\(message)", metadata: metadata ?? [:])
+    }
+
+    public static func info(_ message: Float, metadata: Logger.Metadata? = nil) {
+        logger.info("\(message)", metadata: metadata ?? [:])
+    }
+
+    public static func warning(_ message: Float, metadata: Logger.Metadata? = nil) {
+        logger.warning("\(message)", metadata: metadata ?? [:])
+    }
+
+    public static func error(_ message: Float, metadata: Logger.Metadata? = nil) {
+        logger.error("\(message)", metadata: metadata ?? [:])
+    }
+
+    public static func debug(_ message: Int, metadata: Logger.Metadata? = nil) {
+        logger.debug("\(message)", metadata: metadata ?? [:])
+    }
+
+    public static func info(_ message: Int, metadata: Logger.Metadata? = nil) {
+        logger.info("\(message)", metadata: metadata ?? [:])
+    }
+
+    public static func warning(_ message: Int, metadata: Logger.Metadata? = nil) {
+        logger.warning("\(message)", metadata: metadata ?? [:])
+    }
+
+    public static func error(_ message: Int, metadata: Logger.Metadata? = nil) {
+        logger.error("\(message)", metadata: metadata ?? [:])
+    }
+
     public static func debug(_ message: String, metadata: Logger.Metadata? = nil) {
         logger.debug("\(message)", metadata: metadata ?? [:])
     }
