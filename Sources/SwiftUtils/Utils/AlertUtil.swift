@@ -85,6 +85,6 @@ public class AlertUtil {
 //        password: $password,
 //        isPresented: $showPasswordAlert
 //    ) { pwd in
-//        print("输入的密码是：\(pwd)")
+//        SU.log.info("输入的密码是：\(pwd)")
 //    }
 }

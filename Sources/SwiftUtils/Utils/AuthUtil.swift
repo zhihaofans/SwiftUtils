@@ -45,7 +45,7 @@ class FaceIDTouchIDAuthenticator: ObservableObject {
                 // 设备支持 Touch ID
                 context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: title) { success, error in
                     DispatchQueue.main.async {
-                        print(error?.localizedDescription ?? "验证失败")
+                        SU.log.error(error?.localizedDescription ?? "验证失败")
                         callback(success)
                     }
                 }

@@ -207,7 +207,7 @@ public class DeviceUtil {
             device.unlockForConfiguration()
             return true
         } catch {
-            print("无法操作闪光灯: \(error)")
+            SU.log.info("无法操作闪光灯: \(error)")
             return false
         }
         #else

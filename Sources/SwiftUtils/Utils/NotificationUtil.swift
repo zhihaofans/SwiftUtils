@@ -40,10 +40,10 @@ public class NotificationUtil {
         // 添加通知到通知中心
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                print("❌ 发送通知失败: \(error.localizedDescription)")
+                SU.log.error("❌ 发送通知失败: \(error.localizedDescription)")
                 fail(error.localizedDescription)
             } else {
-                print("✅ 通知已成功发送！")
+                SU.log.info("✅ 通知已成功发送！")
                 success(identifier)
             }
         }
@@ -74,10 +74,10 @@ public class NotificationUtil {
 
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                print("❌ 发送通知失败: \(error.localizedDescription)")
+                SU.log.error("❌ 发送通知失败: \(error.localizedDescription)")
                 fail(error.localizedDescription)
             } else {
-                print("✅ 通知已成功发送！")
+                SU.log.info("✅ 通知已成功发送！")
                 success(identifier)
             }
         }

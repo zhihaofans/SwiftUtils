@@ -25,10 +25,10 @@ public class KeychainUtil {
         let status = SecItemUpdate(query as CFDictionary, attributesToUpdate as CFDictionary)
         // 检查操作是否成功
         if status == errSecSuccess {
-            print("Item updated successfully.")
+            SU.log.info("Item updated successfully.")
             return true
         } else {
-            print("Failed to update item with error code: \(status), and id: \(key).")
+            SU.log.error("Failed to update item with error code: \(status), and id: \(key).")
             return false
         }
     }
@@ -45,13 +45,13 @@ public class KeychainUtil {
         let status = SecItemAdd(query as CFDictionary, nil)
         // 检查操作是否成功
         if status == errSecSuccess {
-            print("Item save successfully.")
+            SU.log.info("Item save successfully.")
             return true
         } else if status == errSecDuplicateItem {
-            print("save failed (status == errSecDuplicateItem), use update, id: \(key).")
+            SU.log.error("save failed (status == errSecDuplicateItem), use update, id: \(key).")
             return self.update(forKey: key, value: value)
         } else {
-            print("Failed to save item with error code: \(status), and id: \(key).")
+            SU.log.error("Failed to save item with error code: \(status), and id: \(key).")
             return false
         }
     }
@@ -66,10 +66,10 @@ public class KeychainUtil {
         let status = SecItemDelete(query as CFDictionary)
         // 检查操作是否成功
         if status == errSecSuccess {
-            print("Item deleted successfully.")
+            SU.log.info("Item deleted successfully.")
             return true
         } else {
-            print("Failed to delete item with error code: \(status), and id: \(key).")
+            SU.log.error("Failed to delete item with error code: \(status), and id: \(key).")
             return false
         }
     }

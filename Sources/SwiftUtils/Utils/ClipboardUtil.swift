@@ -39,7 +39,7 @@ public class ClipboardUtil {
 
     public func hasString() -> Bool {
         #if os(macOS)
-        return getString().isEmpty
+        return getString().isNotEmpty
         #else
         return pasteboard.hasStrings
         #endif
@@ -130,7 +130,7 @@ public class ClipboardUtil {
                 let color = try NSKeyedUnarchiver.unarchivedObject(ofClass: NSColor.self, from: colorData)
                 return color
             } catch {
-                print("Error unarchiving color from pasteboard: \(error)")
+                SU.log.error("Error unarchiving color from pasteboard: \(error)")
             }
         }
         return nil

@@ -36,43 +36,43 @@ public final class NetworkUtil {
             defer { monitor.cancel() }
 
             guard path.status == .satisfied else {
-                print("无网络连接或未知网络")
+                SU.log.info("无网络连接或未知网络")
                 callback(nil)
                 return
             }
 
             if path.usesInterfaceType(.wifi) {
-                print("当前网络：Wi-Fi")
+                SU.log.info("当前网络：Wi-Fi")
                 callback(.wifi)
                 return
             }
 
             if path.usesInterfaceType(.wiredEthernet) {
-                print("当前网络：以太网")
+                SU.log.info("当前网络：以太网")
                 callback(.wiredEthernet)
                 return
             }
 
             if path.usesInterfaceType(.cellular) {
                 #if os(iOS) || targetEnvironment(macCatalyst)
-                print("当前网络：蜂窝数据")
+                SU.log.info("当前网络：蜂窝数据")
                 callback(self?.getCellularType())
                 #else
                 // 纯 macOS 基本不会出现 cellular；兜底为 other
-                print("当前网络：其他（macOS 无蜂窝）")
+                SU.log.error("当前网络：其他（macOS 无蜂窝）")
                 callback(.other)
                 #endif
                 return
             }
 
             if path.usesInterfaceType(.other) {
-                print("当前网络：其他")
+                SU.log.info("当前网络：其他")
                 callback(.other)
                 return
             }
 
             // 正常不会到这里，保险兜底
-            print("无网络连接或未知网络")
+            SU.log.error("无网络连接或未知网络")
             callback(nil)
         }
 
@@ -159,12 +159,12 @@ public final class NetworkUtil {
         switch tech {
         // 5G
         case CTRadioAccessTechnologyNR, CTRadioAccessTechnologyNRNSA:
-            print("当前网络：5G")
+            SU.log.info("当前网络：5G")
             return .is5G
 
         // 4G
         case CTRadioAccessTechnologyLTE:
-            print("当前网络：4G")
+            SU.log.info("当前网络：4G")
             return .is4G
 
         // 3G
@@ -175,18 +175,18 @@ public final class NetworkUtil {
              CTRadioAccessTechnologyCDMAEVDORevA,
              CTRadioAccessTechnologyCDMAEVDORevB,
              CTRadioAccessTechnologyeHRPD:
-            print("当前网络：3G")
+            SU.log.info("当前网络：3G")
             return .is3G
 
         // 2G
         case CTRadioAccessTechnologyGPRS,
              CTRadioAccessTechnologyEdge,
              CTRadioAccessTechnologyCDMA1x:
-            print("当前网络：2G")
+            SU.log.info("当前网络：2G")
             return .is2G
 
         default:
-            print("当前网络：未知蜂窝网络(\(tech))")
+            SU.log.info("当前网络：未知蜂窝网络(\(tech))")
             return nil
         }
         #else
@@ -195,4 +195,3 @@ public final class NetworkUtil {
         #endif
     }
 }
-

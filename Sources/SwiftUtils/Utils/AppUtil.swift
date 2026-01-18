@@ -137,16 +137,16 @@ public class AppUtil {
         let status = UIApplication.shared.backgroundRefreshStatus
         switch status {
         case .available:
-            print("✅ 后台 App 刷新已启用")
+            SU.log.info("✅ 后台 App 刷新已启用")
             return true
         case .denied:
-            print("❌ 后台 App 刷新被用户关闭")
+            SU.log.error("❌ 后台 App 刷新被用户关闭")
             return false
         case .restricted:
-            print("⛔ 后台 App 刷新受限制（如家长控制）")
+            SU.log.error("⛔ 后台 App 刷新受限制（如家长控制）")
             return false
         @unknown default:
-            print("❓ 未知的后台刷新状态")
+            SU.log.error("❓ 未知的后台刷新状态")
             return false
         }
 #else
