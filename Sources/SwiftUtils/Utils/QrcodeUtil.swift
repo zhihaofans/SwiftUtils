@@ -15,7 +15,7 @@ public class QrcodeUtil {
     public init() {}
 
     #if os(macOS)
-    func generateQRCode(from string: String, scale: CGFloat = 10) -> NSImage? {
+    public func generateQRCode(from string: String, scale: CGFloat = 10) -> NSImage? {
         // scale放大倍数
         filter.message = Data(string.utf8)
         if let outputImage = filter.outputImage {
