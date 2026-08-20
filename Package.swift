@@ -19,7 +19,7 @@ let package = Package(
     dependencies: [
         // 添加一个依赖
         .package(url: "https://github.com/Alamofire/Alamofire", exact: "5.9.1"),
-        .package(url: "https://github.com/apple/swift-log", from: "1.9.0"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.15.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
