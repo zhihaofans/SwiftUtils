@@ -1,8 +1,26 @@
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+*~
+*.swp
+*.swo
+
+# Xcode
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# Swift Package Manager
 /.build
 /Packages
-xcuserdata/
-DerivedData/
-.swiftpm/configuration/registries.json
+.swiftpm/configuration/
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+
+# Editors / IDEs
+.idea/
+.vscode/
+
+# Secrets
 .netrc
