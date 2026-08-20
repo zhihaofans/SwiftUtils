@@ -26,13 +26,14 @@ public class CameraUtil {
                     }
                 }
             case .denied:
-                return // 用户拒绝授权
-                    fail("用户拒绝授权")
+                // 用户拒绝授权
+                fail("用户拒绝授权")
             case .restricted:
+                // 系统限制
                 fail("系统限制")
-                return // 系统限制
             @unknown default:
-                fatalError()
+                // 未知状态按失败处理，避免在库代码中 fatalError 崩溃
+                fail("未知的相机权限状态")
         }
     }
 }

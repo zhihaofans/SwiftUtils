@@ -8,53 +8,70 @@
 import Foundation
 
 #if canImport(UIKit)
-import SwiftUI
 import UIKit
-
-// 使用 UIViewControllerRepresentable 封装 UIActivityViewController
-struct ShareSheet: UIViewControllerRepresentable {
-    var activityItems: [Any]
-    var applicationActivities: [UIActivity]? = nil
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
-        return controller
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
-        // 通常不需要更新
-    }
-}
 #endif
 #if canImport(AppKit)
 import AppKit
 #endif
+
 public class ShareUtil {
     public init() {}
 
     public func share(item: Any) {
         #if os(macOS)
+        guard let keyWindow = NSApp.keyWindow, let contentView = keyWindow.contentView else {
+            SU.log.error("分享失败：找不到主窗口")
+            return
+        }
         let sharingPicker = NSSharingServicePicker(items: [item])
-        sharingPicker.delegate = nil // 可以设置代理来进一步自定义行为
-
-        // 使用 NSView 的窗口来展示分享界面
-        sharingPicker.show(relativeTo: .zero, of: NSApp.keyWindow!.contentView!, preferredEdge: .minY)
+        sharingPicker.show(relativeTo: .zero, of: contentView, preferredEdge: .minY)
         #else
-        let iosShareResult = ShareSheet(activityItems: [item])
-        debugPrint(iosShareResult)
+        DispatchQueue.main.async {
+            guard let topVC = Self.topViewController() else {
+                SU.log.error("分享失败：找不到可展示的视图控制器")
+                return
+            }
+            let controller = UIActivityViewController(activityItems: [item], applicationActivities: nil)
+            // iPad 上 UIActivityViewController 必须用 popover 展示，否则会崩溃
+            if let popover = controller.popoverPresentationController {
+                popover.sourceView = topVC.view
+                popover.sourceRect = CGRect(x: topVC.view.bounds.midX, y: topVC.view.bounds.midY, width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
+            topVC.present(controller, animated: true, completion: nil)
+        }
         #endif
     }
+
+    #if canImport(UIKit)
+    /// 找到当前最顶层的视图控制器
+    private static func topViewController(from root: UIViewController? = nil) -> UIViewController? {
+        let root = root ?? UIApplication.shared.connectedScenes
+            .compactMap { ($0 as? UIWindowScene)?.keyWindow }
+            .first?.rootViewController
+        if let presented = root?.presentedViewController {
+            return topViewController(from: presented)
+        }
+        if let nav = root as? UINavigationController {
+            return topViewController(from: nav.visibleViewController)
+        }
+        if let tab = root as? UITabBarController {
+            return topViewController(from: tab.selectedViewController)
+        }
+        return root
+    }
+    #endif
 
     #if os(macOS)
     public func shareImage(img: NSImage) {
         self.share(item: img)
     }
     #else
-
     public func shareImage(img: UIImage) {
         self.share(item: img)
     }
     #endif
+
     public func shareText(text: String) {
         self.share(item: text)
     }

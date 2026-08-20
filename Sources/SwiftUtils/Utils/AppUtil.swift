@@ -42,22 +42,16 @@ public class AppUtil {
     }
 
     public func canOpenUrl(_ urlString: String) -> Bool {
-        if let url = URL(string: urlString) {
-#if canImport(UIKit)
-            return UIApplication.shared.canOpenURL(url)
-#else
-            return NSWorkspace.shared.open(url)
-#endif
-        } else {
-            return false
-        }
+        guard let url = URL(string: urlString) else { return false }
+        return canOpenUrl(url)
     }
 
     public func canOpenUrl(_ url: URL) -> Bool {
 #if canImport(UIKit)
         return UIApplication.shared.canOpenURL(url)
 #else
-        return false
+        // 只检查能否打开，不真正打开
+        return NSWorkspace.shared.urlForApplication(toOpen: url) != nil
 #endif
     }
 

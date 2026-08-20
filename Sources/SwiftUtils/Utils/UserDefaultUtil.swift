@@ -37,7 +37,7 @@ public class UserDefaultUtil {
     }
 
     public func getInt(_ key: String) -> Int? {
-        return self.userDefault.integer(forKey: key)
+        return (self.userDefault.object(forKey: key) as? NSNumber)?.intValue
     }
 
     public func setFloat(key: String, value: Float) {
@@ -45,7 +45,7 @@ public class UserDefaultUtil {
     }
 
     public func getFloat(_ key: String) -> Float? {
-        return self.userDefault.float(forKey: key)
+        return (self.userDefault.object(forKey: key) as? NSNumber)?.floatValue
     }
 
     public func setArrayString(key: String, value: [String]) {
@@ -65,6 +65,6 @@ public class UserDefaultUtil {
     }
 
     public func getBool(_ key: String) -> Bool? {
-        return self.userDefault.bool(forKey: key)
+        return (self.userDefault.object(forKey: key) as? NSNumber)?.boolValue
     }
 }
