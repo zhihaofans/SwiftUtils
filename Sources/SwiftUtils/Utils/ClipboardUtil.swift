@@ -20,11 +20,12 @@ public class ClipboardUtil {
     private let pasteboard = UIPasteboard.general
     #endif
     public init() {}
+
     public func getString() -> String {
         #if os(macOS)
-        return NSPasteboard.general.string(forType: .string) ?? ""
+        return pasteboard.string(forType: .string) ?? ""
         #else
-        return UIPasteboard.general.string ?? ""
+        return pasteboard.string ?? ""
         #endif
     }
 
@@ -33,13 +34,14 @@ public class ClipboardUtil {
         pasteboard.clearContents() // 清除剪贴板当前内容
         pasteboard.setString(str, forType: .string)
         #else
-        UIPasteboard.general.string = str
+        pasteboard.string = str
         #endif
     }
 
     public func hasString() -> Bool {
         #if os(macOS)
-        return getString().isNotEmpty
+        // 与原语义一致：剪贴板中存在非空字符串
+        return pasteboard.string(forType: .string)?.isEmpty == false
         #else
         return pasteboard.hasStrings
         #endif
@@ -47,21 +49,8 @@ public class ClipboardUtil {
 
     #if os(macOS)
     public func getImage() -> NSImage? {
-        // 尝试从剪贴板获取 TIFF 数据
-        if let tiffData = pasteboard.data(forType: .tiff),
-           let image = NSImage(data: tiffData)
-        {
-            return image
-        }
-
-        // 如果 TIFF 数据未找到，尝试 PNG
-        if let pngData = pasteboard.data(forType: .png),
-           let image = NSImage(data: pngData)
-        {
-            return image
-        }
-
-        return nil
+        // readObjects 覆盖 TIFF/PNG/JPEG/HEIC 等所有系统可识别的图像类型
+        return pasteboard.readObjects(forClasses: [NSImage.self], options: nil)?.first as? NSImage
     }
     #else
     public func getImage() -> UIImage? {
@@ -81,19 +70,23 @@ public class ClipboardUtil {
     #endif
 
     public func hasImage() -> Bool {
-        return getImage() != nil
+        #if os(macOS)
+        // 只检查可读性，不实际解码图片
+        return pasteboard.canReadObject(forClasses: [NSImage.self])
+        #else
+        return pasteboard.hasImages
+        #endif
     }
 
     public func getUrl() -> URL? {
         #if os(macOS)
-        // 尝试从剪贴板获取 URL 类型数据
-        if let urlString = pasteboard.string(forType: .URL),
-           let url = URL(string: urlString)
+        // 优先读 URL 类型；没有则退化为字符串解析
+        if let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: nil),
+           let url = urls.first as? URL
         {
             return url
         }
 
-        // 如果没有找到 URL 类型数据，尝试以字符串类型获取
         if let urlString = pasteboard.string(forType: .string),
            let url = URL(string: urlString)
         {
@@ -116,7 +109,10 @@ public class ClipboardUtil {
 
     public func hasUrl() -> Bool {
         #if os(macOS)
-        return getUrl() != nil
+        // 与 getUrl() 口径一致：URL 类型，或可解析为 URL 的字符串
+        // 注：canReadObject(forClasses: [NSURL.self]) 不覆盖纯字符串，故需额外判断字符串
+        if pasteboard.types?.contains(.URL) == true { return true }
+        return pasteboard.string(forType: .string).flatMap(URL.init(string:)) != nil
         #else
         return pasteboard.hasURLs
         #endif
@@ -127,7 +123,10 @@ public class ClipboardUtil {
         // 尝试从剪贴板获取颜色类型数据
         if let colorData = pasteboard.data(forType: .color) {
             do {
-                let color = try NSKeyedUnarchiver.unarchivedObject(ofClass: NSColor.self, from: colorData)
+                let unarchiver = try NSKeyedUnarchiver(forReadingFrom: colorData)
+                unarchiver.requiresSecureCoding = false // 与 setColor 的归档方式配对
+                let color = unarchiver.decodeObject(of: NSColor.self, forKey: NSKeyedArchiveRootObjectKey)
+                unarchiver.finishDecoding()
                 return color
             } catch {
                 SU.log.error("Error unarchiving color from pasteboard: \(error)")
@@ -137,9 +136,10 @@ public class ClipboardUtil {
     }
     #else
     public func getColor() -> UIColor? {
-        return UIPasteboard.general.color
+        return pasteboard.color
     }
     #endif
+
     #if os(macOS)
     public func setColor(_ color: NSColor) {
         pasteboard.clearContents() // 清除剪贴板上的内容
@@ -151,15 +151,15 @@ public class ClipboardUtil {
     }
     #else
     public func setColor(_ color: UIColor) {
-        UIPasteboard.general.color = color
+        pasteboard.color = color
     }
     #endif
 
     public func hasColor() -> Bool {
         #if os(macOS)
-        return getColor() != nil
+        return pasteboard.types?.contains(.color) ?? false
         #else
-        return UIPasteboard.general.hasColors
+        return pasteboard.hasColors
         #endif
     }
 }
