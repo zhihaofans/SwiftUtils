@@ -1,3 +1,4 @@
+#if !os(watchOS)
 //
 //  QrcodeUtil.swift
 //
@@ -44,3 +45,4 @@ public class QrcodeUtil {
     }
     #endif
 }
+#endif

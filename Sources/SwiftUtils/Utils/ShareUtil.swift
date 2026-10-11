@@ -1,3 +1,4 @@
+#if !os(watchOS)
 //
 //  ShareUtil.swift
 //
@@ -76,3 +77,4 @@ public class ShareUtil {
         self.share(item: text)
     }
 }
+#endif

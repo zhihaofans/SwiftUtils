@@ -5,6 +5,7 @@
 //  Created by zzh on 2024/11/25.
 //
 
+#if !os(watchOS)
 import AVFoundation
 import Foundation
 
@@ -37,3 +38,4 @@ public class CameraUtil {
         }
     }
 }
+#endif

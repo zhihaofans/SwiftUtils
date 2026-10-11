@@ -1,3 +1,4 @@
+#if !os(watchOS)
 //
 //  ClipboardUtil.swift
 //
@@ -163,3 +164,4 @@ public class ClipboardUtil {
         #endif
     }
 }
+#endif

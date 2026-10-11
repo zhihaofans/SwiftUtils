@@ -12,12 +12,17 @@ import UIKit
 #if canImport(AppKit)
 import AppKit
 #endif
+#if os(watchOS)
+import WatchKit
+#endif
 public class AppUtil {
     public init() {}
 
     public func openUrl(_ urlString: String) {
         if let url = URL(string: urlString) {
-#if canImport(UIKit)
+#if os(watchOS)
+            openUrl(url)
+#elseif canImport(UIKit)
             Task {
                 DispatchQueue.main.async {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -30,7 +35,14 @@ public class AppUtil {
     }
 
     public func openUrl(_ url: URL) {
-#if canImport(UIKit)
+#if os(watchOS)
+        // watchOS：只能用 WKApplication.openSystemURL
+        Task {
+            DispatchQueue.main.async {
+                WKApplication.shared().openSystemURL(url)
+            }
+        }
+#elseif canImport(UIKit)
         Task {
             DispatchQueue.main.async {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -47,7 +59,10 @@ public class AppUtil {
     }
 
     public func canOpenUrl(_ url: URL) -> Bool {
-#if canImport(UIKit)
+#if os(watchOS)
+        // watchOS 没有 canOpenURL 等价 API，仅做基本 scheme 校验
+        return url.scheme?.isEmpty == false
+#elseif canImport(UIKit)
         return UIApplication.shared.canOpenURL(url)
 #else
         // 只检查能否打开，不真正打开
@@ -117,7 +132,10 @@ public class AppUtil {
     }
 
     public func isDarkColorMode() -> Bool {
-#if os(macOS)
+#if os(watchOS)
+        // watchOS 无 UITraitCollection，界面恒为深色
+        return true
+#elseif os(macOS)
         return false
 #else
         return UITraitCollection.current.userInterfaceStyle == .dark

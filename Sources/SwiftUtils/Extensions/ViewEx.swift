@@ -8,8 +8,11 @@
 import Foundation
 import SwiftUI
 
-#if canImport(UIKit)
+#if canImport(UIKit) && canImport(SafariServices) && !os(watchOS)
 import SafariServices
+#endif
+
+#if canImport(UIKit)
 import UIKit
 #endif
 
@@ -36,7 +39,7 @@ public extension View {
         #endif
     }
 
-    #if canImport(UIKit)
+    #if canImport(UIKit) && !os(watchOS)
     /// iOS 分享文本
     func showShareTextView(_ text: String, isPresented: Binding<Bool>) -> some View {
         sheet(isPresented: isPresented) {
@@ -57,7 +60,7 @@ public extension View {
 
     // Safari / Web 预览
 
-    #if canImport(UIKit)
+    #if canImport(UIKit) && canImport(SafariServices) && !os(watchOS)
     /// iOS Safari 预览
     func showSafariWebPreviewView(_ safariUrlString: String, isPresented: Binding<Bool>) -> some View {
         sheet(isPresented: isPresented) {
@@ -103,7 +106,7 @@ public extension View {
 
 // MARK: - TextField helpers
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 public extension TextField {
     /// 小数键盘（iOS）
     func setDecimalType() -> some View {
@@ -114,6 +117,12 @@ public extension TextField {
     func setNumberType() -> some View {
         keyboardType(.numberPad)
     }
+}
+#elseif os(watchOS)
+public extension TextField {
+    /// watchOS 无键盘类型概念，保持 API 一致
+    func setDecimalType() -> some View { self }
+    func setNumberType() -> some View { self }
 }
 #endif
 
@@ -127,7 +136,7 @@ public extension TextField {
 
 // MARK: - iOS 实现
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 struct ShareActivityView: UIViewControllerRepresentable {
     let activityItems: [Any]
     let applicationActivities: [UIActivity]? = nil
@@ -140,6 +149,9 @@ struct ShareActivityView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
+#endif
+
+#if canImport(UIKit) && canImport(SafariServices) && !os(watchOS)
 struct SafariWebPreviewView: UIViewControllerRepresentable {
     let url: URL
 

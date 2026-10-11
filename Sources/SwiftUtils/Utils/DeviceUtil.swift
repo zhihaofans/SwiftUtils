@@ -22,6 +22,10 @@ import IOKit
 import IOKit.ps
 #endif
 
+#if os(watchOS)
+import WatchKit
+#endif
+
 public class DeviceUtil {
     public init() {}
 
@@ -49,6 +53,8 @@ public class DeviceUtil {
         #if os(macOS)
         let v = ProcessInfo.processInfo.operatingSystemVersion
         return "macOS \(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"
+        #elseif os(watchOS)
+        return WKInterfaceDevice.current().systemVersion
         #else
         #if canImport(UIKit)
         return UIDevice.current.systemVersion
@@ -61,6 +67,8 @@ public class DeviceUtil {
     public func getDeviceName() -> String {
         #if os(macOS)
         return Host.current().localizedName ?? "Mac"
+        #elseif os(watchOS)
+        return WKInterfaceDevice.current().name
         #else
         #if canImport(UIKit)
         return UIDevice.current.name
@@ -78,6 +86,15 @@ public class DeviceUtil {
         var buf = [CChar](repeating: 0, count: size)
         sysctlbyname("hw.model", &buf, &size, nil, 0)
         return String(cString: buf)
+        #elseif os(watchOS)
+        // e.g. "Watch7,1"；取不到时退化为 "Apple Watch"
+        var watchSize = 0
+        sysctlbyname("hw.machine", nil, &watchSize, nil, 0)
+        guard watchSize > 0 else { return WKInterfaceDevice.current().model }
+        var watchBuf = [CChar](repeating: 0, count: watchSize)
+        sysctlbyname("hw.machine", &watchBuf, &watchSize, nil, 0)
+        let watchModel = String(cString: watchBuf)
+        return watchModel.isEmpty ? WKInterfaceDevice.current().model : watchModel
         #else
         #if canImport(UIKit)
         return UIDevice.current.model
@@ -90,13 +107,17 @@ public class DeviceUtil {
     // MARK: - Battery (start/stop for iOS)
 
     public func startToGetBatteryLevel() {
-        #if canImport(UIKit)
+        #if os(watchOS)
+        WKInterfaceDevice.current().isBatteryMonitoringEnabled = true
+        #elseif canImport(UIKit)
         UIDevice.current.isBatteryMonitoringEnabled = true
         #endif
     }
 
     public func stopToGetBatteryLevel() {
-        #if canImport(UIKit)
+        #if os(watchOS)
+        WKInterfaceDevice.current().isBatteryMonitoringEnabled = false
+        #elseif canImport(UIKit)
         UIDevice.current.isBatteryMonitoringEnabled = false
         #endif
     }
@@ -122,6 +143,10 @@ public class DeviceUtil {
             }
         }
         return -1
+        #elseif os(watchOS)
+        let level = WKInterfaceDevice.current().batteryLevel
+        guard level >= 0 else { return -1 }
+        return Int(level * 100.0)
         #else
         #if canImport(UIKit)
         let level = UIDevice.current.batteryLevel
@@ -156,6 +181,12 @@ public class DeviceUtil {
             }
         }
         return false
+        #elseif os(watchOS)
+        let device = WKInterfaceDevice.current()
+        device.isBatteryMonitoringEnabled = true
+        defer { device.isBatteryMonitoringEnabled = false }
+        let state = device.batteryState
+        return state == .charging || state == .full
         #else
         #if canImport(UIKit)
         UIDevice.current.isBatteryMonitoringEnabled = true
@@ -172,7 +203,10 @@ public class DeviceUtil {
 
     /// 获取屏幕亮度（0~1）。macOS 出于公开 API 限制返回 0。
     public func getScreenBrightness() -> Double {
-        #if canImport(UIKit)
+        #if os(watchOS)
+        // watchOS 无公开亮度 API
+        return 0
+        #elseif canImport(UIKit)
         return Double(UIScreen.main.brightness)
         #else
         // macOS 没有公开可上架的全局亮度 API
@@ -182,7 +216,9 @@ public class DeviceUtil {
 
     /// 设置屏幕亮度。macOS 保持 no-op（避免使用私有 API）。
     public func setScreenBrightness(brightness: Double) {
-        #if canImport(UIKit)
+        #if os(watchOS)
+        // watchOS: 不做处理（无公开 API）
+        #elseif canImport(UIKit)
         guard brightness >= 0.0, brightness <= 1.0 else { return }
         UIScreen.main.brightness = CGFloat(brightness)
         #else
@@ -193,7 +229,10 @@ public class DeviceUtil {
     // MARK: - Torch (iOS only)
 
     public func toggleFlashlight() -> Bool {
-        #if canImport(UIKit)
+        #if os(watchOS)
+        // watchOS 无手电筒（AVCaptureDevice 不可用）
+        return false
+        #elseif canImport(UIKit)
         guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else {
             return false
         }
