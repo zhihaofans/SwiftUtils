@@ -26,6 +26,12 @@ public class NotificationUtil {
     }
 
     public func sendTextNotification(title: String, body: String, timeInterval: Double = 60, success: @escaping (String) -> Void, fail: @escaping (String) -> Void) {
+        // timeInterval <= 0 会让 UNTimeIntervalNotificationTrigger 直接抛 ObjC 异常
+        guard timeInterval > 0 else {
+            SU.log.error("❌ 发送通知失败: timeInterval 必须大于 0（当前 \(timeInterval)）")
+            fail("timeInterval 必须大于 0")
+            return
+        }
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -50,6 +56,12 @@ public class NotificationUtil {
     }
 
     public func sendImageNotification(title: String, body: String, imageURL: URL, timeInterval: Double = 60, success: @escaping (String) -> Void, fail: @escaping (String) -> Void) {
+        // timeInterval <= 0 会让 UNTimeIntervalNotificationTrigger 直接抛 ObjC 异常
+        guard timeInterval > 0 else {
+            SU.log.error("❌ 发送通知失败: timeInterval 必须大于 0（当前 \(timeInterval)）")
+            fail("timeInterval 必须大于 0")
+            return
+        }
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body

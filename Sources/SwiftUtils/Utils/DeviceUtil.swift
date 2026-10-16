@@ -183,14 +183,18 @@ public class DeviceUtil {
         return false
         #elseif os(watchOS)
         let device = WKInterfaceDevice.current()
-        device.isBatteryMonitoringEnabled = true
-        defer { device.isBatteryMonitoringEnabled = false }
+        // 只在本方法自己开启监控时才恢复，避免关掉调用方通过 startToGetBatteryLevel() 开启的监控
+        let wasMonitoring = device.isBatteryMonitoringEnabled
+        if !wasMonitoring { device.isBatteryMonitoringEnabled = true }
+        defer { if !wasMonitoring { device.isBatteryMonitoringEnabled = false } }
         let state = device.batteryState
         return state == .charging || state == .full
         #else
         #if canImport(UIKit)
-        UIDevice.current.isBatteryMonitoringEnabled = true
-        defer { UIDevice.current.isBatteryMonitoringEnabled = false }
+        // 只在本方法自己开启监控时才恢复，避免关掉调用方通过 startToGetBatteryLevel() 开启的监控
+        let wasMonitoring = UIDevice.current.isBatteryMonitoringEnabled
+        if !wasMonitoring { UIDevice.current.isBatteryMonitoringEnabled = true }
+        defer { if !wasMonitoring { UIDevice.current.isBatteryMonitoringEnabled = false } }
         let s = UIDevice.current.batteryState
         return s == .charging || s == .full
         #else
@@ -238,12 +242,13 @@ public class DeviceUtil {
         }
         do {
             try device.lockForConfiguration()
+            // 无论成功失败都必须解锁，否则设备会停留在锁定状态
+            defer { device.unlockForConfiguration() }
             if device.torchMode == .on {
                 device.torchMode = .off
             } else {
                 try device.setTorchModeOn(level: 1.0)
             }
-            device.unlockForConfiguration()
             return true
         } catch {
             SU.log.info("无法操作闪光灯: \(error)")

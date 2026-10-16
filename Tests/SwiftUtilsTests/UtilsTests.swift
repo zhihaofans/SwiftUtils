@@ -30,6 +30,22 @@ final class EncodeUtilTests: XCTestCase {
         XCTAssertEqual(util.urlEncode("中 文"), "%E4%B8%AD%20%E6%96%87")
     }
 
+    /// 回归：参数值编码必须转义 query 分隔符，否则 `a&admin=true` 会拼出额外参数
+    func testUrlEncodeEscapesQueryDelimiters() {
+        XCTAssertEqual(util.urlEncode("a&admin=true"), "a%26admin%3Dtrue")
+        XCTAssertEqual(util.urlEncode("k=v"), "k%3Dv")
+        XCTAssertEqual(util.urlEncode("a?b"), "a%3Fb")
+        XCTAssertEqual(util.urlEncode("a+b"), "a%2Bb")
+        // 编码后不应再出现裸分隔符
+        let encoded = util.urlEncode("x&y=z?w+v")
+        XCTAssertFalse(encoded.contains("&"))
+        XCTAssertFalse(encoded.contains("="))
+        XCTAssertFalse(encoded.contains("?"))
+        XCTAssertFalse(encoded.contains("+"))
+        // 编解码可往返
+        XCTAssertEqual(util.urlDecode(encoded), "x&y=z?w+v")
+    }
+
     func testUrlDecode() {
         XCTAssertEqual(util.urlDecode("abc"), "abc")
         XCTAssertEqual(util.urlDecode("a%20b/c"), "a b/c")
@@ -332,3 +348,10 @@ final class QrcodeUtilTests: XCTestCase {
     }
 }
 #endif
+
+// MARK: - Notification
+//
+// 说明：`NotificationUtil` 无法在 SwiftPM 测试进程里实例化 ——
+// 其存储属性 `UNUserNotificationCenter.current()` 在无 App Bundle 的进程里会直接抛
+// `NSInternalInconsistencyException: bundleProxyForCurrentProcess is nil`（实测）。
+// 因此 `timeInterval <= 0` 的入参校验只能靠代码审查保证，这里不做单元测试。

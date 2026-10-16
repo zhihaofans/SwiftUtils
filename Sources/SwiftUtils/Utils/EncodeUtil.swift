@@ -10,9 +10,19 @@ import Foundation
 public class EncodeUtil {
     public init() {}
 
+    /// 用于 URL **参数值** 的百分号编码。
+    /// 注意不能直接用 `.urlQueryAllowed`：它包含 `& = ? +` 等分隔符，
+    /// 会把 `a&admin=true` 原样输出，拼进 query 后等于凭空多出一个参数。
     public func urlEncode(_ oldString: String) -> String {
-        return oldString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? oldString
+        return oldString.addingPercentEncoding(withAllowedCharacters: EncodeUtil.queryValueAllowed) ?? oldString
     }
+
+    /// `.urlQueryAllowed` 去掉在 query 中具有分隔语义的字符
+    private static let queryValueAllowed: CharacterSet = {
+        var allowed = CharacterSet.urlQueryAllowed
+        allowed.remove(charactersIn: "&=?+")
+        return allowed
+    }()
 
     public func urlDecode(_ oldString: String) -> String {
         return oldString.removingPercentEncoding ?? oldString

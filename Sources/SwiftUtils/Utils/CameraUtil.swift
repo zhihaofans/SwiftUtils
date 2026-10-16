@@ -19,11 +19,14 @@ public class CameraUtil {
             // 已经授权
             case .notDetermined:
                 AVCaptureDevice.requestAccess(for: .video) { granted in
-                    if !granted {
-                        // 用户拒绝授权
-                        fail("用户拒绝授权")
-                    } else {
-                        success()
+                    // 系统回调不在主线程，统一切回主线程，避免调用方在 UI 线程外更新状态
+                    DispatchQueue.main.async {
+                        if !granted {
+                            // 用户拒绝授权
+                            fail("用户拒绝授权")
+                        } else {
+                            success()
+                        }
                     }
                 }
             case .denied:
