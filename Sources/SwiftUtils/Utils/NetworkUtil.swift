@@ -24,9 +24,14 @@ public final class NetworkUtil {
     // MARK: - Public API
 
     /// 异步获取当前网络类型；无网络/未知时回调 `nil`
+    ///
+    /// - Note: 回调在 Network 框架的后台队列上执行，因此闭包标记为 `@Sendable`。
+    ///   若调用方开启了 `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`，未标注的闭包会隐式
+    ///   继承主线程隔离，而这里是在后台队列调用，Swift 6 运行时隔离检查会直接 trap
+    ///   （`dispatch_assert_queue_fail`）—— 这是运行时崩溃，编译期不会报错。
     public func getNetworkType(
-        callback: @escaping (NetworkType?) -> Void,
-        fail: @escaping (String) -> Void
+        callback: @escaping @Sendable (NetworkType?) -> Void,
+        fail: @escaping @Sendable (String) -> Void
     ) {
         let monitor = NWPathMonitor()
         let queue = DispatchQueue.global(qos: .background)
@@ -81,14 +86,15 @@ public final class NetworkUtil {
 
     // MARK: - Convenience checks (跨平台一致接口)
 
-    public func isWifi(callback: @escaping (Bool) -> Void) {
-        getNetworkType(callback: { callback($0 == .wifi) }, fail: { _ in callback(false) })
+    public func isWifi(callback: @escaping @Sendable (Bool) -> Void) {
+        getNetworkType(callback: { @Sendable value in callback(value == .wifi) },
+                       fail: { @Sendable _ in callback(false) })
     }
 
-    public func is5G(callback: @escaping (Bool) -> Void) { callback(is5G()) }
-    public func is4G(callback: @escaping (Bool) -> Void) { callback(is4G()) }
-    public func is3G(callback: @escaping (Bool) -> Void) { callback(is3G()) }
-    public func is2G(callback: @escaping (Bool) -> Void) { callback(is2G()) }
+    public func is5G(callback: @escaping @Sendable (Bool) -> Void) { callback(is5G()) }
+    public func is4G(callback: @escaping @Sendable (Bool) -> Void) { callback(is4G()) }
+    public func is3G(callback: @escaping @Sendable (Bool) -> Void) { callback(is3G()) }
+    public func is2G(callback: @escaping @Sendable (Bool) -> Void) { callback(is2G()) }
 
     public func is5G() -> Bool {
         #if os(iOS) || targetEnvironment(macCatalyst)

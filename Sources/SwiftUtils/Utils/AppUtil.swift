@@ -136,7 +136,8 @@ public class AppUtil {
         // watchOS 无 UITraitCollection，界面恒为深色
         return true
 #elseif os(macOS)
-        return false
+        // 读真实外观：深色模式下应是 darkAqua
+        return NSApp?.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
 #else
         return UITraitCollection.current.userInterfaceStyle == .dark
 #endif
