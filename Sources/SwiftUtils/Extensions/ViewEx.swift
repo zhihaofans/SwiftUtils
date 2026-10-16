@@ -48,6 +48,21 @@ public extension View {
     }
     #endif
 
+    #if os(watchOS)
+    /// watchOS 分享文本。
+    /// watchOS 没有 `UIActivityViewController`，但 SwiftUI 的 `ShareLink`（watchOS 9.0+）
+    /// 可以在手表上唤起系统分享。`ShareLink` 是按钮而非 sheet，
+    /// 这里以 sheet 承载它以保持与 iOS/macOS 版一致的调用方式。
+    func showShareTextView(_ text: String, isPresented: Binding<Bool>) -> some View {
+        sheet(isPresented: isPresented) {
+            ShareLink(item: text) {
+                Label("分享", systemImage: "square.and.arrow.up")
+            }
+            .padding()
+        }
+    }
+    #endif
+
     // Share Sheet
     #if canImport(AppKit)
     /// macOS 分享文本（保持同一接口）
