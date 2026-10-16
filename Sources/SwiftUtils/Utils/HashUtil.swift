@@ -5,7 +5,7 @@
 //  Created by zzh on 2024/6/22.
 //
 
-import CryptoKit // 引入你的 C 包装模块
+import CryptoKit
 import Foundation
 
 public class HashUtil {

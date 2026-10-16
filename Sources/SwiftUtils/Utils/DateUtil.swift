@@ -24,10 +24,7 @@ public class DateUtil {
         let formatter = DateFormatter()
         formatter.dateFormat = format.isEmpty ? "yyyy-MM-dd HH:mm:ss" : format
         formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
-        // formatter.timeZone = TimeZone(abbreviation: "CST") // 中央标准时间
-        formatter.timeZone = TimeZone(abbreviation: "Asia/Shanghai") // 中央标准时间
-
-        // formatter.timeZone = TimeZone(secondsFromGMT: 8 * 3600)  // 设置时区为 UTC+8
+        formatter.timeZone = TimeZone(identifier: "Asia/Shanghai") // 中央标准时间（UTC+8，与设备时区无关）
         // 格式化日期
         let dateString = formatter.string(from: date)
         return dateString // 输出 "2020-05-23 19:47:52"

@@ -31,12 +31,6 @@ let package = Package(
                 .product(name: "Logging", package: "swift-log"),
             ]
         ),
-        .target(
-            name: "CCWrapper",
-            dependencies: [],
-            path: "Sources/CCWrapper",
-            publicHeadersPath: "."
-        ),
         .testTarget(
             name: "SwiftUtilsTests",
             dependencies: ["SwiftUtils"]
