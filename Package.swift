@@ -18,7 +18,6 @@ let package = Package(
     ],
     dependencies: [
         // 添加一个依赖
-        .package(url: "https://github.com/Alamofire/Alamofire", exact: "5.12.2"),
         .package(url: "https://github.com/apple/swift-log", from: "1.15.0"),
     ],
     targets: [
@@ -27,7 +26,6 @@ let package = Package(
         .target(
             name: "SwiftUtils",
             dependencies: [
-                "Alamofire",
                 .product(name: "Logging", package: "swift-log"),
             ]
         ),

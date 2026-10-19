@@ -3,7 +3,7 @@ import XCTest
 
 // MARK: - 请求拦截桩
 //
-// 用 URLProtocol 拦下 URLSession.shared，测试纯 Foundation 实现发出的真实请求，
+// 用 URLProtocol 拦下注入的 URLSession，测试真实发出的请求，
 // 无需启动本地服务器，也不依赖网络。
 final class StubURLProtocol: URLProtocol {
     enum Stub {
@@ -16,6 +16,7 @@ final class StubURLProtocol: URLProtocol {
         let method: String
         let contentType: String?
         let userAgent: String?
+        let cookie: String?
         let body: String?
     }
 
@@ -31,6 +32,7 @@ final class StubURLProtocol: URLProtocol {
                      method: request.httpMethod ?? "",
                      contentType: request.value(forHTTPHeaderField: "Content-Type"),
                      userAgent: request.value(forHTTPHeaderField: "User-Agent"),
+                     cookie: request.value(forHTTPHeaderField: "Cookie"),
                      body: Self.readBody(request).flatMap { String(data: $0, encoding: .utf8) })
         )
 
@@ -69,7 +71,7 @@ final class StubURLProtocol: URLProtocol {
     }
 }
 
-// MARK: - 纯 Foundation API 测试
+// MARK: - HttpUtil 测试
 
 final class HttpUtilTests: XCTestCase {
     private var util: HttpUtil!
@@ -111,17 +113,36 @@ final class HttpUtilTests: XCTestCase {
     }
 
     // MARK: 参数编码
+    //
+    // 下面几条钉的是「迁移前后服务端实际收到的字节」：剥离 Alamofire 后必须保持原样，
+    // 否则调用方一行都没改也可能坏。
 
-    /// 与 Alamofire 的 URLEncodedFormEncoder 实测输出逐字节对齐
-    func testEncodeFormMatchesAlamofire() {
+    func testEncodeFormMatchesLegacyWireFormat() {
         let params: [String: Any] = ["q": "a b", "n": 1, "amp": "a&b", "plus": "x+y"]
         XCTAssertEqual(HttpUtil.encodeForm(params), "amp=a%26b&n=1&plus=x%2By&q=a%20b")
         XCTAssertEqual(HttpUtil.encodeForm(["b": "x", "a": 1]), "a=1&b=x")
         XCTAssertEqual(HttpUtil.encodeForm([:]), "")
     }
 
-    func testEncodeFormEscapesDelimiters() {
-        XCTAssertEqual(HttpUtil.encodeForm(["k": "a&b=c?d+e"]), "k=a%26b%3Dc%3Fd%2Be")
+    func testEncodeFormEscapesDelimitersLikeLegacy() {
+        // ? 与 / 保留（RFC 3986 查询串规则），其余保留字转义
+        XCTAssertEqual(HttpUtil.encodeForm(["k": "a&b=c?d+e/f"]), "k=a%26b%3Dc?d%2Be/f")
+        XCTAssertEqual(HttpUtil.encodeForm(["k": "a:b@c"]), "k=a%3Ab%40c")
+    }
+
+    func testEncodeFormEncodesArraysAsBrackets() {
+        // 方括号本身会被转义（Alamofire URLEncoding 的实际输出，见 ParameterEncodingTests）
+        XCTAssertEqual(HttpUtil.encodeForm(["ids": [1, 2]]), "ids%5B%5D=1&ids%5B%5D=2")
+        XCTAssertEqual(HttpUtil.encodeForm(["tags": ["a", "b"]]), "tags%5B%5D=a&tags%5B%5D=b")
+    }
+
+    func testEncodeFormEncodesNestedDictionary() {
+        XCTAssertEqual(HttpUtil.encodeForm(["user": ["name": "zzh", "age": 18]]),
+                       "user%5Bage%5D=18&user%5Bname%5D=zzh")
+    }
+
+    func testEncodeFormEncodesBoolAsNumber() {
+        XCTAssertEqual(HttpUtil.encodeForm(["ok": true, "no": false]), "no=0&ok=1")
     }
 
     // MARK: GET
@@ -140,11 +161,25 @@ final class HttpUtilTests: XCTestCase {
         XCTAssertEqual(StubURLProtocol.captured.first?.url, "http://stub.local/echo")
     }
 
+    /// 默认参数回归：删除 Alamofire 重载后，`get(url, callback:fail:)` 必须仍然可用
+    func testGetWithOmittedQueryStillSendsRequest() {
+        perform { cb, fb in util.get("http://stub.local/echo", callback: cb, fail: fb) }
+        XCTAssertEqual(StubURLProtocol.captured.first?.url, "http://stub.local/echo")
+        XCTAssertEqual(StubURLProtocol.captured.first?.method, "GET")
+    }
+
     func testGetAppendsWithAmpersandWhenUrlAlreadyHasQuery() {
         perform { cb, fb in
             util.get("http://stub.local/echo?existing=1", query: ["a": 2], callback: cb, fail: fb)
         }
         XCTAssertEqual(StubURLProtocol.captured.first?.url, "http://stub.local/echo?existing=1&a=2")
+    }
+
+    func testGetKeepsFragmentAfterQuery() {
+        perform { cb, fb in
+            util.get("http://stub.local/echo#frag", query: ["a": 1], callback: cb, fail: fb)
+        }
+        XCTAssertEqual(StubURLProtocol.captured.first?.url, "http://stub.local/echo?a=1#frag")
     }
 
     // MARK: POST
@@ -157,6 +192,12 @@ final class HttpUtilTests: XCTestCase {
         XCTAssertEqual(captured?.method, "POST")
         XCTAssertEqual(captured?.contentType, "application/x-www-form-urlencoded; charset=utf-8")
         XCTAssertEqual(captured?.body, "n=1&q=a%20b")
+    }
+
+    func testPostWithoutFormSendsNoBodyAndNoContentType() {
+        perform { cb, fb in util.post("http://stub.local/echo", callback: cb, fail: fb) }
+        XCTAssertNil(StubURLProtocol.captured.first?.body)
+        XCTAssertNil(StubURLProtocol.captured.first?.contentType)
     }
 
     func testPostJSONContentTypeAndBody() {
@@ -174,15 +215,17 @@ final class HttpUtilTests: XCTestCase {
     }
 
     func testPostJSONRejectsNonJSONValue() {
+        let done = expectation(description: "fail")
         var failMessage: String?
         var succeeded = false
-        for _ in 0 ..< 1 {
-            util.postJSON("http://stub.local/echo", json: ["bad": Date()]) { _ in
-                succeeded = true
-            } fail: { message in
-                failMessage = message
-            }
+        util.postJSON("http://stub.local/echo", json: ["bad": Date()]) { _ in
+            succeeded = true
+            done.fulfill()
+        } fail: { message in
+            failMessage = message
+            done.fulfill()
         }
+        wait(for: [done], timeout: 10)
         XCTAssertFalse(succeeded)
         XCTAssertNotNil(failMessage)
         XCTAssertTrue(StubURLProtocol.captured.isEmpty, "序列化失败不应发出请求")
@@ -191,27 +234,66 @@ final class HttpUtilTests: XCTestCase {
     // MARK: 请求头
 
     func testDefaultUserAgentIsSent() {
-        perform { cb, fb in util.get("http://stub.local/echo", query: nil, callback: cb, fail: fb) }
+        perform { cb, fb in util.get("http://stub.local/echo", callback: cb, fail: fb) }
         XCTAssertTrue(StubURLProtocol.captured.first?.userAgent?.hasPrefix("Mozilla/5.0") == true)
     }
 
     func testSetHeaderDictionaryReplacesHeaders() {
         util.setHeader(["X-Custom": "1"])
-        perform { cb, fb in util.get("http://stub.local/echo", query: nil, callback: cb, fail: fb) }
+        perform { cb, fb in util.get("http://stub.local/echo", callback: cb, fail: fb) }
         // 旧 UA 被整体替换
         XCTAssertNil(StubURLProtocol.captured.first?.userAgent)
     }
 
     func testSetUAOverride() {
         util.setUA("MyUA/1.0")
-        perform { cb, fb in util.get("http://stub.local/echo", query: nil, callback: cb, fail: fb) }
+        perform { cb, fb in util.get("http://stub.local/echo", callback: cb, fail: fb) }
         XCTAssertEqual(StubURLProtocol.captured.first?.userAgent, "MyUA/1.0")
     }
 
     func testSetCookieOverride() {
         util.setCookie("sid=abc")
-        perform { cb, fb in util.get("http://stub.local/echo", query: nil, callback: cb, fail: fb) }
-        XCTAssertEqual(StubURLProtocol.captured.first?.userAgent?.hasPrefix("Mozilla/5.0"), true)
+        perform { cb, fb in util.get("http://stub.local/echo", callback: cb, fail: fb) }
+        XCTAssertEqual(StubURLProtocol.captured.first?.cookie, "sid=abc")
+        // 设 Cookie 不应影响默认 UA
+        XCTAssertTrue(StubURLProtocol.captured.first?.userAgent?.hasPrefix("Mozilla/5.0") == true)
+    }
+
+    // MARK: 回调契约
+
+    /// 回归：回调必须在主队列执行。剥离前 Alamofire 的 `responseString` 默认就是 main，
+    /// 后台队列回调会让「回调里直接刷 UI」的调用方在 Swift 6 下 trap。
+    func testCallbacksRunOnMainQueue() {
+        StubURLProtocol.handler = { _ in .success(status: 200, headers: [:], body: Data("ok".utf8)) }
+        let done = expectation(description: "callback")
+        var isMain = false
+        util.get("http://stub.local/echo") { _ in
+            isMain = Thread.isMainThread
+            done.fulfill()
+        } fail: { _ in
+            done.fulfill()
+        }
+        wait(for: [done], timeout: 10)
+        XCTAssertTrue(isMain, "成功回调不在主队列")
+    }
+
+    /// 失败回调同样在主队列，且是异步的（不会在 `get` 返回前就执行）
+    func testFailCallbackIsAsyncOnMainQueue() {
+        var returned = false
+        var isMainWhenCalled = false
+        var calledBeforeReturn = false
+        let done = expectation(description: "fail")
+        util.get("http://[invalid") { _ in
+            done.fulfill()
+        } fail: { _ in
+            if !returned { calledBeforeReturn = true }
+            isMainWhenCalled = Thread.isMainThread
+            done.fulfill()
+        }
+        returned = true
+        wait(for: [done], timeout: 10)
+        XCTAssertTrue(isMainWhenCalled)
+        XCTAssertFalse(calledBeforeReturn, "失败回调不应同步触发")
     }
 
     // MARK: 响应处理
@@ -220,31 +302,31 @@ final class HttpUtilTests: XCTestCase {
         StubURLProtocol.handler = { _ in
             .success(status: 200, headers: ["Content-Type": "application/json"], body: Data("{\"ok\":true}".utf8))
         }
-        let result = perform { cb, fb in util.get("http://stub.local/echo", query: nil, callback: cb, fail: fb) }
+        let result = perform { cb, fb in util.get("http://stub.local/echo", callback: cb, fail: fb) }
         XCTAssertEqual(result.value, "{\"ok\":true}")
         XCTAssertNil(result.error)
     }
 
-    /// 回归：与既有 Alamofire 行为一致 —— 不调用 validate()，非 2xx 仍走成功回调
+    /// 回归：不调用 validate()，非 2xx 仍走成功回调（旧 Alamofire 行为）
     func testNon2xxGoesToSuccessCallback() {
         StubURLProtocol.handler = { _ in
             .success(status: 404, headers: [:], body: Data("{\"error\":\"not found\"}".utf8))
         }
-        let result = perform { cb, fb in util.get("http://stub.local/notfound", query: nil, callback: cb, fail: fb) }
+        let result = perform { cb, fb in util.get("http://stub.local/notfound", callback: cb, fail: fb) }
         XCTAssertNil(result.error, "4xx 不应走失败回调")
         XCTAssertEqual(result.value, "{\"error\":\"not found\"}")
     }
 
     func testServerErrorAlsoGoesToSuccessCallback() {
         StubURLProtocol.handler = { _ in .success(status: 500, headers: [:], body: Data("boom".utf8)) }
-        let result = perform { cb, fb in util.get("http://stub.local/boom", query: nil, callback: cb, fail: fb) }
+        let result = perform { cb, fb in util.get("http://stub.local/boom", callback: cb, fail: fb) }
         XCTAssertNil(result.error)
         XCTAssertEqual(result.value, "boom")
     }
 
     func testNetworkErrorGoesToFailCallback() {
         StubURLProtocol.handler = { _ in .failure(URLError(.notConnectedToInternet)) }
-        let result = perform { cb, fb in util.get("http://stub.local/echo", query: nil, callback: cb, fail: fb) }
+        let result = perform { cb, fb in util.get("http://stub.local/echo", callback: cb, fail: fb) }
         XCTAssertNil(result.value)
         XCTAssertTrue(result.error?.hasPrefix("http.get:") == true)
     }
@@ -253,19 +335,15 @@ final class HttpUtilTests: XCTestCase {
         StubURLProtocol.handler = { _ in
             .success(status: 200, headers: [:], body: Data([0xFF, 0xFE, 0xFD]))
         }
-        let result = perform { cb, fb in util.post("http://stub.local/echo", form: nil, callback: cb, fail: fb) }
+        let result = perform { cb, fb in util.post("http://stub.local/echo", callback: cb, fail: fb) }
         XCTAssertNil(result.value)
         XCTAssertNotNil(result.error)
     }
 
     func testInvalidUrlGoesToFailCallback() {
-        var failMessage: String?
-        var succeeded = false
-        util.get("http://[invalid", query: nil) { _ in
-            succeeded = true
-        } fail: { failMessage = $0 }
-        XCTAssertFalse(succeeded)
-        XCTAssertNotNil(failMessage)
+        let result = perform { cb, fb in util.get("http://[invalid", callback: cb, fail: fb) }
+        XCTAssertNil(result.value)
+        XCTAssertTrue(result.error?.hasPrefix("http.get:") == true)
         XCTAssertTrue(StubURLProtocol.captured.isEmpty)
     }
 }
