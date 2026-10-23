@@ -442,7 +442,26 @@ final class QrcodeUtilTests: XCTestCase {
 
 // MARK: - Notification
 //
-// 说明：`NotificationUtil` 无法在 SwiftPM 测试进程里实例化 ——
-// 其存储属性 `UNUserNotificationCenter.current()` 在无 App Bundle 的进程里会直接抛
-// `NSInternalInconsistencyException: bundleProxyForCurrentProcess is nil`（实测）。
-// 因此 `timeInterval <= 0` 的入参校验只能靠代码审查保证，这里不做单元测试。
+// 说明：`NotificationUtil` 现在可以安全实例化（权限查询已移到 `PermissionUtil`，
+// 不再在 init 里取 `UNUserNotificationCenter.current()`）。
+// 但真正 `add` 通知仍然需要 App bundle，所以这里只测能在无 bundle 进程里走完的入参校验。
+
+final class NotificationUtilTests: XCTestCase {
+    func testSendTextNotificationRejectsNonPositiveInterval() {
+        let util = NotificationUtil()
+        var failMessage: String?
+        util.sendTextNotification(title: "t", body: "b", timeInterval: 0, success: { _ in
+            XCTFail("timeInterval <= 0 不应成功")
+        }, fail: { failMessage = $0 })
+        XCTAssertEqual(failMessage, "timeInterval 必须大于 0")
+    }
+
+    func testSendImageNotificationRejectsNonPositiveInterval() {
+        let util = NotificationUtil()
+        var failMessage: String?
+        util.sendImageNotification(title: "t", body: "b", imageURL: URL(fileURLWithPath: "/tmp/x.png"), timeInterval: -1, success: { _ in
+            XCTFail("timeInterval <= 0 不应成功")
+        }, fail: { failMessage = $0 })
+        XCTAssertEqual(failMessage, "timeInterval 必须大于 0")
+    }
+}

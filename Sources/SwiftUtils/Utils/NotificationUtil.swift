@@ -8,20 +8,24 @@
 import UserNotifications
 
 public class NotificationUtil {
-    private let center = UNUserNotificationCenter.current()
+    /// 权限查询/申请统一走 PermissionUtil：
+    /// 以前 `private let center = UNUserNotificationCenter.current()` 会在 init 时就取值，
+    /// 无 App bundle 的进程（单测、扩展）直接抛异常；而且两条权限回调的线程约定还不一致。
+    private let permissions = PermissionUtil()
+
     public init() {}
 
+    /// 是否已获得通知权限（`provisional` 临时授权也算已获得）
     public func checkNotificationPermission(_ result: @escaping (Bool) -> Void) {
-        center.getNotificationSettings { settings in
-            DispatchQueue.main.async {
-                result(settings.authorizationStatus == .authorized)
-            }
+        permissions.check(.notifications) { status in
+            result(status.isGranted)
         }
     }
 
+    /// 申请通知权限；只在还没问过时才会弹框，回调在主队列
     public func requestNotificationPermission(_ result: @escaping (Bool) -> Void) {
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-            result(granted)
+        permissions.request(.notifications) { status in
+            result(status.isGranted)
         }
     }
 
