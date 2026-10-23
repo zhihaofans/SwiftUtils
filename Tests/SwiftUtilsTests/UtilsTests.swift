@@ -1,3 +1,5 @@
+import LocalAuthentication
+import Security
 import XCTest
 @testable import SwiftUtils
 
@@ -290,11 +292,100 @@ final class KeychainUtilTests: XCTestCase {
         super.tearDown()
     }
 
+    // MARK: 查询构造
+    //
+    // 这几条钉的是「能写进去但 update/delete 匹配不到」那类静默失败：
+    // 四个操作必须落在同一条记录上，也就是 class + service + account + DP flag 完全一致。
+
+    func testDefaultServiceIsStable() {
+        XCTAssertEqual(KeychainUtil.defaultService, "me.zzhhoo.easyswift")
+        let query = KeychainUtil().dataProtectionQuery(forKey: key)
+        XCTAssertEqual(query[kSecAttrService as String] as? String, "me.zzhhoo.easyswift")
+    }
+
+    func testDataProtectionQueriesShareServiceAndFlag() {
+        let util = KeychainUtil(service: "svc.test")
+        let queries: [(String, [String: Any])] = [
+            ("基础", util.dataProtectionQuery(forKey: key)),
+            ("写入", util.dataProtectionAddQuery(forKey: key, data: Data("v".utf8))),
+            ("读取", util.dataProtectionReadQuery(forKey: key)),
+        ]
+        for (name, query) in queries {
+            XCTAssertEqual(query[kSecClass as String] as? String, kSecClassGenericPassword as String,
+                           "\(name)查询的 class 不一致")
+            XCTAssertEqual(query[kSecAttrService as String] as? String, "svc.test",
+                           "\(name)查询缺少统一的 service")
+            XCTAssertEqual(query[kSecAttrAccount as String] as? String, key,
+                           "\(name)查询的 account 不一致")
+            XCTAssertEqual(query[kSecUseDataProtectionKeychain as String] as? Bool, true,
+                           "\(name)查询没有走数据保护钥匙串")
+        }
+    }
+
+    func testAddQueryUsesAfterFirstUnlockAccessibility() {
+        let add = util.dataProtectionAddQuery(forKey: key, data: Data("v".utf8))
+        XCTAssertEqual(add[kSecAttrAccessible as String] as? String,
+                       kSecAttrAccessibleAfterFirstUnlock as String)
+        XCTAssertNotNil(add[kSecValueData as String])
+
+        let read = util.dataProtectionReadQuery(forKey: key)
+        XCTAssertEqual(read[kSecReturnData as String] as? Bool, true)
+        XCTAssertEqual(read[kSecMatchLimit as String] as? String, kSecMatchLimitOne as String)
+    }
+
+    func testServiceCanBeCustomized() {
+        let custom = KeychainUtil(service: "another.service")
+        XCTAssertEqual(custom.dataProtectionQuery(forKey: key)[kSecAttrService as String] as? String,
+                       "another.service")
+    }
+
+    /// 旧查询必须「不带 service、不带 DP flag、禁止弹窗」，否则要么匹配不到老记录，
+    /// 要么把用户又弹一次授权框
+    func testLegacyQueryStaysCompatibleAndSilent() {
+        let legacy = util.legacyQuery(forKey: key)
+        XCTAssertNil(legacy[kSecAttrService as String], "旧查询带了 service 就匹配不到历史记录")
+        XCTAssertNil(legacy[kSecUseDataProtectionKeychain as String], "旧查询不能走数据保护钥匙串")
+        XCTAssertEqual(legacy[kSecAttrAccount as String] as? String, key)
+        XCTAssertEqual(legacy[kSecClass as String] as? String, kSecClassGenericPassword as String)
+
+        let context = legacy[kSecUseAuthenticationContext as String] as? LAContext
+        XCTAssertNotNil(context, "旧查询缺少认证上下文，ACL 需要授权时会弹窗")
+        XCTAssertEqual(context?.interactionNotAllowed, true, "认证上下文必须禁止交互")
+
+        let read = util.legacyReadQuery(forKey: key)
+        XCTAssertEqual(read[kSecReturnData as String] as? Bool, true)
+        XCTAssertEqual(read[kSecMatchLimit as String] as? String, kSecMatchLimitOne as String)
+    }
+
+    /// 升级前写下的老记录：读取必须能命中，并且无论能不能迁移都不能把它弄丢
+    func testLegacyItemIsReadableAndUpdated() throws {
+        let legacySeed: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: Data("legacy-v1".utf8),
+        ]
+        _ = SecItemDelete(legacySeed as CFDictionary)
+        guard SecItemAdd(legacySeed as CFDictionary, nil) == errSecSuccess else {
+            throw XCTSkip("当前环境不允许访问 Keychain，跳过该用例")
+        }
+
+        XCTAssertEqual(util.getString(forKey: key), "legacy-v1", "旧记录应能在不弹窗的前提下读到")
+        // 再读一次：迁移成功与否都要稳定，不能第一次读到、第二次没了
+        XCTAssertEqual(util.getString(forKey: key), "legacy-v1")
+
+        // 只有老记录时 update 也要成功（不能只认新钥匙串）
+        XCTAssertTrue(util.update(forKey: key, value: "legacy-v2"))
+        XCTAssertEqual(util.getString(forKey: key), "legacy-v2")
+    }
+
+    // MARK: 读写往返
+
     func testSaveReadUpdateRemove() throws {
         _ = util.remove(forKey: key)
         XCTAssertNil(util.getString(forKey: key))
 
-        // 受限环境（沙箱 / 未签名测试进程）下 Keychain 不可写，此时跳过而不是误报失败
+        // 受限环境（无 entitlement / 沙箱）下数据保护钥匙串不可写；实现会回退旧钥匙串，
+        // 仍然写不进去时跳过而不是误报失败
         guard util.saveString(forKey: key, value: "v1") else {
             throw XCTSkip("当前环境不允许访问 Keychain，跳过该用例")
         }
