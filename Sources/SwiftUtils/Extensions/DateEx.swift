@@ -8,6 +8,25 @@
 import Foundation
 
 public extension Date {
+    /// 统一的时间格式化器：固定 zh_CN + Asia/Shanghai。
+    /// 之前 `pastTimeString` 漏了 timeZone，同一个时间戳在列表和详情里会显示成不同日期。
+    static func timeFormatter(_ format: String) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.locale = Locale(identifier: "zh_CN")
+        formatter.timeZone = TimeZone(identifier: "Asia/Shanghai")
+        return formatter
+    }
+
+    /// 与上面的格式化器配套的日历，用于「今年/去年」这类判断。
+    /// 用设备日历去比较、却用上海时区去格式化，跨年那几天会算错。
+    static var shanghaiCalendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: "zh_CN")
+        calendar.timeZone = TimeZone(identifier: "Asia/Shanghai") ?? .current
+        return calendar
+    }
+
     var year: Int {
         return Calendar.current.component(.year, from: self)
     }
@@ -37,56 +56,28 @@ public extension Date {
     }
 
     var timestampToTimeChinese: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy年MM月dd日HH时mm分ss秒"
-        formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
-        formatter.timeZone = TimeZone(identifier: "Asia/Shanghai") // 中央标准时间（UTC+8，与设备时区无关）
-        let dateString = formatter.string(from: self)
-        return dateString // 输出 "2020-05-23 19:47:52"
+        Date.timeFormatter("yyyy年MM月dd日HH时mm分ss秒").string(from: self)
     }
 
     var timestampToTimeStr: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
-        formatter.timeZone = TimeZone(identifier: "Asia/Shanghai") // 中央标准时间（UTC+8，与设备时区无关）
-        let dateString = formatter.string(from: self)
-        return dateString // 输出 "2020-05-23 19:47:52"
+        Date.timeFormatter("yyyy-MM-dd HH:mm:ss").string(from: self)
     }
 
     var timestampToTimeStrMinute: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
-        formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
-        formatter.timeZone = TimeZone(identifier: "Asia/Shanghai") // 中央标准时间（UTC+8，与设备时区无关）
-        let dateString = formatter.string(from: self)
-        return dateString // 输出 "2020-05-23 19:47:52"
+        Date.timeFormatter("yyyy-MM-dd HH:mm").string(from: self)
     }
 
     var timestampToTimeStrHour: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH"
-        formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
-        formatter.timeZone = TimeZone(identifier: "Asia/Shanghai") // 中央标准时间（UTC+8，与设备时区无关）
-        let dateString = formatter.string(from: self)
-        return dateString // 输出 "2020-05-23 19"
+        Date.timeFormatter("yyyy-MM-dd HH").string(from: self)
     }
 
     var timestampToTimeStrDay: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "zh_CN") // 设置为中国地区格式
-        formatter.timeZone = TimeZone(identifier: "Asia/Shanghai") // 中央标准时间（UTC+8，与设备时区无关）
-        let dateString = formatter.string(from: self)
-        return dateString // 输出 "2020-05-23"
+        Date.timeFormatter("yyyy-MM-dd").string(from: self)
     }
 
     var pastTimeString: String {
-        let date = self
         let now = Date()
-
-        let calendar = Calendar.current
-        let diff = now.timeIntervalSince(date)
+        let diff = now.timeIntervalSince(self)
 
         // 1️⃣ 一小时内
         if diff < 3600 {
@@ -99,21 +90,15 @@ public extension Date {
             return "\(hours)小时前"
         }
 
-        let dateYear = calendar.component(.year, from: date)
+        // 3️⃣/4️⃣ 年份判断与格式化都必须用同一个时区，否则跨年那几天会算错
+        let calendar = Date.shanghaiCalendar
+        let dateYear = calendar.component(.year, from: self)
         let nowYear = calendar.component(.year, from: now)
 
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "zh_CN")
-
-        // 3️⃣ 今年
         if dateYear == nowYear {
-            formatter.dateFormat = "MM-dd"
-            return formatter.string(from: date)
+            return Date.timeFormatter("MM-dd").string(from: self)
         }
-
-        // 4️⃣ 去年及以前
-        formatter.dateFormat = "yy-MM-dd"
-        return formatter.string(from: date)
+        return Date.timeFormatter("yy-MM-dd").string(from: self)
     }
 
     func isYesterday(date: Date) -> Bool {

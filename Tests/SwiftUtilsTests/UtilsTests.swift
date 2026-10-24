@@ -465,3 +465,22 @@ final class NotificationUtilTests: XCTestCase {
         XCTAssertEqual(failMessage, "timeInterval 必须大于 0")
     }
 }
+
+// MARK: - Auth
+//
+// 测试进程里没有生物识别，能验证的只有「不会崩」和结果类型的语义；
+// 真实弹窗（成功/取消/锁定）只能在真机上手动过。
+
+final class AuthUtilTests: XCTestCase {
+    func testBiometryProbeDoesNotCrash() {
+        let util = AuthUtil()
+        _ = util.hasFaceID()
+        _ = util.hasTouchID()
+    }
+
+    func testAuthResultSemantics() {
+        XCTAssertEqual(AuthUtil.AuthResult.success, .success)
+        XCTAssertEqual(AuthUtil.AuthResult.unavailable("未录入"), .unavailable("未录入"))
+        XCTAssertNotEqual(AuthUtil.AuthResult.cancelled, .failed("验证失败"))
+    }
+}

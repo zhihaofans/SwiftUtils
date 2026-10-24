@@ -15,6 +15,14 @@ final class StringExtensionTests: XCTestCase {
         XCTAssertFalse("abc".isFloat)
 
         XCTAssertTrue("https://example.com".isUrl)
+        // 回归：URL(string:) 对相对路径也返回非 nil，不能拿它当「是不是链接」
+        XCTAssertFalse("hello".isUrl)
+        XCTAssertFalse("123".isUrl)
+        XCTAssertFalse("not a url".isUrl)
+        XCTAssertFalse("www.example.com".isUrl, "缺 scheme 不再当作链接")
+        XCTAssertFalse("https://".isUrl, "残缺 URL 不算")
+        XCTAssertTrue("mailto:someone@example.com".isUrl)
+        XCTAssertTrue("ftp://example.com/a".isUrl)
         XCTAssertFalse("".isNotEmpty)
         XCTAssertTrue("a".isNotEmpty)
     }
@@ -192,6 +200,12 @@ final class DateExtensionTests: XCTestCase {
     func testTimestampIsTruncating() {
         let date = Date(timeIntervalSince1970: 1_600_000_000.75)
         XCTAssertEqual(date.timestamp, 1_600_000_000)
+    }
+
+    /// 回归：`pastTimeString` 曾经漏设 timeZone，和同文件其它格式化方法不一致
+    func testFormattersUseShanghaiTimeZone() {
+        XCTAssertEqual(Date.timeFormatter("MM-dd").timeZone, TimeZone(identifier: "Asia/Shanghai"))
+        XCTAssertEqual(Date.shanghaiCalendar.timeZone, TimeZone(identifier: "Asia/Shanghai"))
     }
 
     func testPastTimeStringForNow() {

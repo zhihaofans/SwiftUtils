@@ -19,8 +19,30 @@ public extension String {
         return Int(self) != nil
     }
 
+    /// 是否是「可打开的链接」。
+    ///
+    /// 以前只判断 `URL(string:) != nil`，而它对相对路径也返回非 nil，
+    /// 于是 `"hello"`、`"123"`、`"not a url"` 全被当成 URL（实测）。
+    /// 现在要求：
+    /// - 不含空白字符；
+    /// - 带 scheme（`http:` / `mailto:` / `file:` 等）；
+    /// - `http`/`https`/`ftp` 还必须有 host，过滤掉 `https://` 这种残缺串。
+    ///
+    /// - Note: 不带 scheme 的 `www.example.com` 现在会返回 `false`，需要先补全 scheme。
     var isUrl: Bool {
-        return URL(string: self) != nil
+        let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty,
+              trimmed.rangeOfCharacter(from: .whitespacesAndNewlines) == nil,
+              let url = URL(string: trimmed),
+              let scheme = url.scheme?.lowercased(), !scheme.isEmpty
+        else {
+            return false
+        }
+
+        if ["http", "https", "ftp", "ftps"].contains(scheme) {
+            return url.host?.isEmpty == false
+        }
+        return true
     }
 
     var isFloat: Bool {
