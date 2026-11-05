@@ -49,12 +49,15 @@ public class NotificationUtil {
 
         // 添加通知到通知中心
         UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                SU.log.error("❌ 发送通知失败: \(error.localizedDescription)")
-                fail(error.localizedDescription)
-            } else {
-                SU.log.info("✅ 通知已成功发送！")
-                success(identifier)
+            // 系统回调线程不固定，统一回主队列，和库内其它回调保持一致
+            DispatchQueue.main.async {
+                if let error = error {
+                    SU.log.error("❌ 发送通知失败: \(error.localizedDescription)")
+                    fail(error.localizedDescription)
+                } else {
+                    SU.log.info("✅ 通知已成功发送！")
+                    success(identifier)
+                }
             }
         }
     }
@@ -89,12 +92,15 @@ public class NotificationUtil {
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                SU.log.error("❌ 发送通知失败: \(error.localizedDescription)")
-                fail(error.localizedDescription)
-            } else {
-                SU.log.info("✅ 通知已成功发送！")
-                success(identifier)
+            // 系统回调线程不固定，统一回主队列，和库内其它回调保持一致
+            DispatchQueue.main.async {
+                if let error = error {
+                    SU.log.error("❌ 发送通知失败: \(error.localizedDescription)")
+                    fail(error.localizedDescription)
+                } else {
+                    SU.log.info("✅ 通知已成功发送！")
+                    success(identifier)
+                }
             }
         }
     }

@@ -18,6 +18,7 @@ public class QrcodeUtil {
     #if os(macOS)
     public func generateQRCode(from string: String, scale: CGFloat = 10) -> NSImage? {
         // scale放大倍数
+        filter.setValue("H", forKey: "inputCorrectionLevel") // 高纠错级别，与 iOS 分支一致
         filter.message = Data(string.utf8)
         if let outputImage = filter.outputImage {
             let transform = CGAffineTransform(scaleX: scale, y: scale)

@@ -20,7 +20,7 @@ public class ShareUtil {
 
     public func share(item: Any) {
         #if os(macOS)
-        guard let keyWindow = NSApp.keyWindow, let contentView = keyWindow.contentView else {
+        guard let app = NSApp, let keyWindow = app.keyWindow, let contentView = keyWindow.contentView else {
             SU.log.error("分享失败：找不到主窗口")
             return
         }
