@@ -144,9 +144,9 @@ final class PermissionUtilTests: XCTestCase {
         XCTAssertEqual(PermissionUtil.requiredInfoPlistKeys(for: .contacts), ["NSContactsUsageDescription"])
         XCTAssertEqual(PermissionUtil.requiredInfoPlistKeys(for: .photoLibraryReadWrite),
                        ["NSPhotoLibraryUsageDescription"])
-        // 只写相册：两个 key 任一存在都算配好
-        XCTAssertTrue(PermissionUtil.requiredInfoPlistKeys(for: .photoLibraryAddOnly)
-            .contains("NSPhotoLibraryAddUsageDescription"))
+        // 只写相册只认 Add 键：读权限的 key 不能顶替
+        XCTAssertEqual(PermissionUtil.requiredInfoPlistKeys(for: .photoLibraryAddOnly),
+                       ["NSPhotoLibraryAddUsageDescription"])
         // 定位：iOS 用 WhenInUse，macOS 12 上还有旧的 NSLocationUsageDescription
         XCTAssertTrue(PermissionUtil.requiredInfoPlistKeys(for: .locationWhenInUse)
             .contains("NSLocationWhenInUseUsageDescription"))
@@ -169,9 +169,11 @@ final class PermissionUtilTests: XCTestCase {
         // 空白字符串也算没配
         XCTAssertFalse(util.hasUsageDescription(for: .camera, info: ["NSCameraUsageDescription": "  "]))
         XCTAssertTrue(util.hasUsageDescription(for: .camera, info: ["NSCameraUsageDescription": "拍照"]))
-        // 相册只写：新旧 key 任一存在即可
+        // 相册只写：只认 Add 键，只有读权限的 key 不算配好
         XCTAssertTrue(util.hasUsageDescription(for: .photoLibraryAddOnly,
-                                               info: ["NSPhotoLibraryUsageDescription": "x"]))
+                                               info: ["NSPhotoLibraryAddUsageDescription": "x"]))
+        XCTAssertFalse(util.hasUsageDescription(for: .photoLibraryAddOnly,
+                                                info: ["NSPhotoLibraryUsageDescription": "x"]))
         // 日历：旧 key 作为兼容
         XCTAssertTrue(util.hasUsageDescription(for: .calendars,
                                                info: ["NSCalendarsUsageDescription": "x"]))

@@ -273,7 +273,9 @@ public class PermissionUtil {
         case .microphone:
             return ["NSMicrophoneUsageDescription"]
         case .photoLibraryAddOnly:
-            return ["NSPhotoLibraryAddUsageDescription", "NSPhotoLibraryUsageDescription"]
+            // 只写相册在系统层面只认这个键；缺了去调 requestAuthorization 会被直接终止，
+            // 所以不能拿读权限的 NSPhotoLibraryUsageDescription 顶替
+            return ["NSPhotoLibraryAddUsageDescription"]
         case .photoLibraryReadWrite:
             return ["NSPhotoLibraryUsageDescription"]
         case .notifications:
