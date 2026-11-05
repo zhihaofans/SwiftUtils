@@ -71,7 +71,11 @@ public struct RetryPolicy: Sendable {
 
 - `DateUtil` 硬编码 `Asia/Shanghai`，跨时区项目会静默错。建议默认 `TimeZone.current`，需要固定时区的调用方显式传。
 - `UserDefaultUtil` 用默认值吞掉「没数据 vs 数据坏了」。建议区分 optional 读取与默认值。
-- `LogUtil` 与 `os.Logger` / swift-log 的关系需要统一；Ordira 现在直接用 `os.Logger`。
+- `PermissionUtil` 把「Info.plist 缺 key」和「设备没有这个能力」都映射成 `.unavailable`，调用方分不出是配置错还是硬件不支持；要区分得加 `.misconfigured`（公共 API 变更，需先定）。
+- `QrcodeUtil` 实例内的 `CIFilter` 非线程安全，多线程同时生成会串数据；可改为每次调用新建 filter，或加锁。
+- `ClipboardUtil.getString` 在 iOS 16+ 会触发系统粘贴授权弹窗；`hasString` 也可能触发，启动路径不要调。
+- `LogUtil` 默认走 swift-log 的 stderr handler，宿主不 `LoggingSystem.bootstrap` 时真机 Release 看不到日志；与 `os.Logger` 的关系也需要统一。
+- `AlertUtil` / 部分 `ViewEx` 文案写死在库里（“取消/确定/请输入内容”），无法被宿主 String Catalog 本地化。
 
 ## 不做
 
