@@ -42,10 +42,10 @@ public final class NetworkUtil: Sendable {
         let monitor = NWPathMonitor()
         let queue = DispatchQueue(label: "github.zhihaofans.swiftutils.network", qos: .background)
         // 成功回调和超时只能有一个生效，否则调用方会收到两次结果
-        let gate = CallbackGate()
+        let gate = ResumeOnceGate()
 
         let timeout = DispatchWorkItem {
-            guard gate.fire() else { return }
+            guard gate.tryResume() else { return }
             monitor.cancel()
             SU.log.error("获取网络类型超时")
             fail("获取网络类型超时")
@@ -54,7 +54,7 @@ public final class NetworkUtil: Sendable {
 
         // 仅回调一次后停止
         monitor.pathUpdateHandler = { [weak self] path in
-            guard gate.fire() else { return }
+            guard gate.tryResume() else { return }
             timeout.cancel()
             monitor.cancel()
 
@@ -231,20 +231,5 @@ public final class NetworkUtil: Sendable {
         // ✅ macOS 没有蜂窝网络
         return nil
         #endif
-    }
-}
-
-/// 保证「成功」和「超时」只有一条路径能真正回调
-private final class CallbackGate: @unchecked Sendable {
-    private let lock = NSLock()
-    private var fired = false
-
-    /// - Returns: 第一次调用返回 `true`，之后的调用都返回 `false`
-    func fire() -> Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        guard !fired else { return false }
-        fired = true
-        return true
     }
 }
