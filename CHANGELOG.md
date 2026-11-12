@@ -5,6 +5,27 @@
 
 ## [Unreleased]
 
+### 新增
+
+- `FileUtil`：原子写 / 读（可选 `NSFileCoordinator` 协调）、`createDirectoryIfNeeded`、`removeIfExists`、`uniqueURL`（返回建议名）、`createUniqueFile`（内核级判重，并发保存不互相覆盖）、`makeTemporaryDirectory`、异步 `directorySize`
+- `TemporaryDirectory`：临时目录句柄，最后一个引用释放时自动删除
+- `SecurityScopedAccess`：同步 / 异步安全作用域访问；macOS / Catalyst 额外提供书签读写，供跨启动保留授权
+- `FileSizeFormatter`：跟随 locale 的字节格式化（`.file` 1000 进制 / `.memory` 1024 进制），空文件显示 `0 bytes`
+- `RelativeTimeFormatter`：本地化相对时间；未来时间不再被误显示成「刚刚」
+- `Array.chunked(into:)`：按块切分，`size <= 0` 返回空
+- `ResumeOnceGate`：线程安全的「只放行一次」，供 continuation 桥接与成功/超时竞速使用
+- `withTimeout`、`AsyncDebouncer`、`RetryPolicy`、`TimeoutError`：超时、防抖、指数退避
+- `Scripts/check-platforms.sh`：macOS 构建 + iOS / watchOS 交叉编译
+
+### 修复
+
+- `AuthUtil` 在 watchOS 上**编译不过**：`LAError` 的 `biometryNotAvailable` / `biometryNotEnrolled` / `biometryLockout` 在 watchOS 上是 unavailable，`mapError` 里的 `case` 需要条件编译。此前只跑 macOS 构建，一直没发现
+
+### 其它
+
+- `AGENTS.md` 增加平台矩阵（哪些 API 在 watchOS / macOS 12 不可用）与三平台编译命令
+- `NetworkUtil` 的私有 `CallbackGate` 换成公共 `ResumeOnceGate`
+
 ## [0.0.29] - 2026-11-05
 
 ### 修复
