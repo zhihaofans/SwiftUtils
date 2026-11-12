@@ -114,14 +114,19 @@ public class AuthUtil {
         switch laError.code {
         case .userCancel, .appCancel, .systemCancel:
             return .cancelled
+        #if !os(watchOS)
+        // watchOS 上这几个 code 都被标成 unavailable：手表没有可锁定的生物识别，
+        // 用的是 `.deviceOwnerAuthentication`（密码）。不加条件编译，整个包在 watchOS
+        // 上编不过 —— 而 `swift build` 只验 macOS，一直发现不了。
         case .biometryNotAvailable:
             return .unavailable("设备不支持生物识别")
         case .biometryNotEnrolled:
             return .unavailable("尚未录入 Face ID / Touch ID")
-        case .passcodeNotSet:
-            return .unavailable("设备未设置密码")
         case .biometryLockout:
             return .failed("生物识别已被锁定，请先输入密码解锁")
+        #endif
+        case .passcodeNotSet:
+            return .unavailable("设备未设置密码")
         case .authenticationFailed:
             return .failed("验证失败")
         default:
