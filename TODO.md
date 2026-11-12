@@ -6,30 +6,18 @@
 
 ## 待实现
 
-### 批次 2：图像 / PDF / 媒体（0.0.31）
-
-1. `ImageUtil`（ImageIO 路线，三平台同名 API）
-   - `downsample(_:maxPixelSize:) -> CGImage?`：必须带 `kCGImageSourceCreateThumbnailWithTransform`，否则竖拍缩略图是横的
-   - `reencode(_:to:quality:maxPixelSize:) -> Data?`：重编码会丢 metadata，要显式搬 EXIF orientation
-   - `metadata(_:) -> [String: Any]`：非 Sendable，文档写清只在主线程用；另给扁平 `[String: String]` 版本
-   - 验证：带 `orientation = 6` 的 fixture，输出仍竖着
-2. `PDFUtil`（`#if os(iOS) || os(macOS)`；watchOS 没有 PDFKit）
-   - `pageCount`、`pageImage(_:page:maxPixelSize:) -> CGImage?`、`makePDF(from: [CGImage], to:)`
-   - 不做整本渲染：100 页 × scale 2 是 GB 级内存
-3. `MediaUtil`（`#if os(iOS) || os(macOS)`；`AVAssetExportSession` 在 watchOS 上 unavailable）
-   - `export(_:to:preset:)`：导出前删目标文件、检查 `status == .failed`、进度轮询
-   - `info(_:)`：用 `try await asset.load(.duration)`，不用已 deprecated 的同步 `.duration`
-4. `AuthUtil.biometryInfo()`：返回 `(available, LABiometryType)`，每次新建 `LAContext`
-5. 待定：`PermissionUtil` 增加 `.misconfigured`，区分「Info.plist 缺 key」与「设备没有这个能力」
-   —— 公共枚举变更，先确认再动
-
 ### 批次 3：日志（0.0.32）
 
-6. `OSLogHandler`：swift-log 的 OSLog 后端
+1. `OSLogHandler`：swift-log 的 OSLog 后端
    - 用 `final class` + 锁（`LogHandler.metadata` 可变，struct 值语义并发写会丢）
    - 默认 `.private`，避免把路径写进系统日志；库**不**调 `LoggingSystem.bootstrap`
-7. `LogExporter`：用 `OSLogStore` 导出最近 N 秒日志（macOS 12 / iOS 15 / watchOS 8+）
+2. `LogExporter`：用 `OSLogStore` 导出最近 N 秒日志（macOS 12 / iOS 15 / watchOS 8+）
    - `getEntries` 同步阻塞，要包 async；流式拼接，别一次 `compactMap` 成数组
+
+### 待定
+
+3. `PermissionUtil` 增加 `.misconfigured`，区分「Info.plist 缺 key」与「设备没有这个能力」
+   —— 公共枚举变更，先确认再动
 
 ## 已知问题（不急着改）
 

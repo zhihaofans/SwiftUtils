@@ -30,6 +30,30 @@ public class AuthUtil {
         return Self.checkBiometry(.faceID)
     }
 
+    /// 生物识别可用性与类型。
+    public struct BiometryInfo: Equatable {
+        public let isAvailable: Bool
+        public let type: LABiometryType
+    }
+
+    /// 当前设备能否做生物识别、用的是哪一种。
+    ///
+    /// - Note: 放这里而不是 `PermissionUtil`：`PermissionUtil` 管的是 TCC 权限，
+    ///   生物识别是 LocalAuthentication 的能力探测；`LAContext` 的用法只保留一处，
+    ///   免得两边的「每次新建 context」约定各自漂移。
+    /// - Note: watchOS 的 policy 是 `.deviceOwnerAuthentication`（手表用密码），
+    ///   所以通常 `isAvailable == true` 但 `type == .none`。
+    public static func biometryInfo() -> BiometryInfo {
+        // 每次新建 context：复用评估过的 context，失败/取消后的状态可能是脏的
+        let context = LAContext()
+        var error: NSError?
+        let available = context.canEvaluatePolicy(policy, error: &error)
+        return BiometryInfo(
+            isAvailable: available,
+            type: available ? context.biometryType : .none
+        )
+    }
+
     /// 生物识别（新接口，能区分取消 / 失败 / 不可用）。
     ///
     /// 每次调用都新建 `LAContext`：复用一个已经评估过的 context，失败或取消之后状态可能是脏的。

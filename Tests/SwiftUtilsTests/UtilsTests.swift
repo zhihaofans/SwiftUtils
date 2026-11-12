@@ -483,4 +483,14 @@ final class AuthUtilTests: XCTestCase {
         XCTAssertEqual(AuthUtil.AuthResult.unavailable("未录入"), .unavailable("未录入"))
         XCTAssertNotEqual(AuthUtil.AuthResult.cancelled, .failed("验证失败"))
     }
+
+    func testBiometryInfoIsConsistent() {
+        let info = AuthUtil.biometryInfo()
+
+        // 测试机大多没有 Touch ID / Face ID，能钉住的只有「不可用时类型必须是 .none」；
+        // 有生物识别的真机由宿主集成测试覆盖。
+        if !info.isAvailable {
+            XCTAssertEqual(info.type, .none, "不可用时 biometryType 必须是 .none")
+        }
+    }
 }

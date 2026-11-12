@@ -77,5 +77,8 @@ swift test --scratch-path .build/scratch --cache-path .build/cache \
 - `LogUtil` 默认走 swift-log 的 stderr handler；宿主不 `LoggingSystem.bootstrap` 时，真机 Release 基本看不到日志
 - `ByteCountFormatter` **没有** `locale` 属性，测试没法钉住输出；要可测就用 `ByteCountFormatStyle`（`FileSizeFormatter` 已封装）
 - `ByteCountFormatStyle` 会把 1500 字节显示成 "2 kB"（kB 档系统取整），这是系统行为，不要为「看起来精确」回去手写单位表
+- 写图片时改方向：顶层 `Orientation`、`{Exif}.Orientation`、`{TIFF}.Orientation` 要一起改成 1，并清掉 `{Exif}` 里的旧 `PixelXDimension` / `PixelYDimension`。只改顶层的话，查看器看着正常，但事后用 `CGImageSourceCreateThumbnailAtIndex` 取缩略图会转 90°（`ImageUtil.normalizedProperties` 已处理）
+- `AVAssetExportSession` 在目标文件已存在时直接失败，导出前必须先删；`exportAsynchronously` 无论成败都会回调，必须再看 `status`
+- `MediaUtil.info` 对损坏文件会抛底层 `AVError`，不会返回 0 秒空视频——别在调用处 `try?` 吞掉
 - `withTimeout` 超时后只能**请求**取消：卡在非协作系统调用里的任务会继续跑到结束，结果被丢弃
 - `TemporaryDirectory` 是引用类型，最后一个强引用释放时 `deinit` 删除目录；想提前删调 `remove()`，别指望把它存进模型里长期持有

@@ -7,6 +7,10 @@
 
 ### 新增
 
+- `ImageUtil`：按 EXIF 方向转正的缩略图、转码（缩放时把方向归一并清掉旧的像素尺寸）、元数据读取与扁平化。走 ImageIO，三个平台同一套 API
+- `PDFUtil`：页数、单页渲染（带白底，不会导出透明/黑底）、由图片生成 PDF（iOS / macOS；watchOS 没有 PDFKit）
+- `MediaUtil`：音视频信息（时长 / 显示尺寸 / 有无音视频轨）、导出（导出前清理目标文件、检查失败状态）；iOS / macOS
+- `AuthUtil.biometryInfo()`：生物识别可用性与类型，与 `authenticate` 共用同一套 `LAContext` 规则
 - `FileUtil`：原子写 / 读（可选 `NSFileCoordinator` 协调）、`createDirectoryIfNeeded`、`removeIfExists`、`uniqueURL`（返回建议名）、`createUniqueFile`（内核级判重，并发保存不互相覆盖）、`makeTemporaryDirectory`、异步 `directorySize`
 - `TemporaryDirectory`：临时目录句柄，最后一个引用释放时自动删除
 - `SecurityScopedAccess`：同步 / 异步安全作用域访问；macOS / Catalyst 额外提供书签读写，供跨启动保留授权
