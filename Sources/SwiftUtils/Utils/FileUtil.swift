@@ -186,10 +186,14 @@ public enum FileUtil {
         ) else { return 0 }
 
         var total: Int64 = 0
-        for case let fileURL as URL in enumerator {
+        // 用 nextObject() 而不是 for-in：NSEnumerator 的 Sequence 迭代在 async 上下文里
+        // 被标成 noasync（Swift 6 直接报错），这里逐个取下一个就没事。
+        while let item = enumerator.nextObject() {
             if Task.isCancelled { return total }
-            guard let values = try? fileURL.resourceValues(forKeys: keys) else { continue }
-            guard values.isDirectory != true else { continue }
+            guard let fileURL = item as? URL,
+                  let values = try? fileURL.resourceValues(forKeys: keys),
+                  values.isDirectory != true
+            else { continue }
 
             let size = metric == .content
                 ? values.fileSize ?? 0
