@@ -7,6 +7,9 @@
 
 ### 新增
 
+- `LogLevel` / `LogBackend` / `ConsoleBackend` / `OSLogBackend`：可插拔日志后端，默认写 stderr，App 可切到系统日志
+- `LogExporter`：按 subsystem 导出当前进程最近 N 秒日志（`OSLogStore`，可在 App 内做「导出日志」）
+- `LogUtil` 增加 `trace` / `notice` / `critical` 与 `configureLogging(level:backend:)`
 - `ImageUtil`：按 EXIF 方向转正的缩略图、转码（缩放时把方向归一并清掉旧的像素尺寸）、元数据读取与扁平化。走 ImageIO，三个平台同一套 API
 - `PDFUtil`：页数、单页渲染（带白底，不会导出透明/黑底）、由图片生成 PDF（iOS / macOS；watchOS 没有 PDFKit）
 - `MediaUtil`：音视频信息（时长 / 显示尺寸 / 有无音视频轨）、导出（导出前清理目标文件、检查失败状态）；iOS / macOS
@@ -20,6 +23,14 @@
 - `ResumeOnceGate`：线程安全的「只放行一次」，供 continuation 桥接与成功/超时竞速使用
 - `withTimeout`、`AsyncDebouncer`、`RetryPolicy`、`TimeoutError`：超时、防抖、指数退避
 - `Scripts/check-platforms.sh`：macOS 构建 + iOS / watchOS 交叉编译
+
+### 变更
+
+- **移除 `swift-log` 依赖（breaking）**：`LogUtil` 的 `metadata` 参数从 `Logger.Metadata?` 改为 `[String: String]?`，`configureLogger(label:logLevel:)` 的 `logLevel` 类型改为 `LogLevel`（`.debug` / `.info` 等写法不变）；`Package.resolved` 一并删除，仓库回到零第三方依赖
+
+### 移除
+
+- `swift-log` 依赖：日志等级过滤、后端分发改为库内实现
 
 ### 修复
 
