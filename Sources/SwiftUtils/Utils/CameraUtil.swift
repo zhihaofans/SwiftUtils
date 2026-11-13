@@ -25,6 +25,8 @@ public class CameraUtil {
                 fail("系统限制")
             case .denied:
                 fail("用户拒绝授权")
+            case .misconfigured:
+                fail("相机权限未配置（Info.plist 缺少 NSCameraUsageDescription）")
             case .unavailable:
                 fail("当前设备不支持相机")
             case .notDetermined:

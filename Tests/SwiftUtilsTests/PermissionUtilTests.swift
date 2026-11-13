@@ -28,7 +28,7 @@ final class PermissionUtilTests: XCTestCase {
         // 部分授权（相册 limited / 通知 provisional）也是能用
         XCTAssertTrue(PermissionStatus.limited.isGranted)
 
-        let notGranted: [PermissionStatus] = [.notDetermined, .denied, .restricted, .unavailable, .unknown]
+        let notGranted: [PermissionStatus] = [.notDetermined, .denied, .restricted, .misconfigured, .unavailable, .unknown]
         for status in notGranted {
             XCTAssertFalse(status.isGranted, "\(status) 不该被当成已授权")
         }
@@ -157,7 +157,47 @@ final class PermissionUtilTests: XCTestCase {
         XCTAssertTrue(PermissionUtil.requiredInfoPlistKeys(for: .notifications).isEmpty)
     }
 
+    /// 配没配 Info.plist 和「设备有没有能力」是两件事，状态要能分开
+    func testMisconfiguredIsDistinctFromUnavailable() {
+        XCTAssertFalse(PermissionStatus.misconfigured.isGranted)
+        XCTAssertNotEqual(PermissionStatus.misconfigured, .unavailable)
+    }
+
+    /// 缺 key 时 `check` 就要报 `.misconfigured`，别等到 UI 引导用户去授权才发现配错了
+    func testCheckReportsMissingUsageDescriptionAsMisconfigured() {
+        let util = PermissionUtil(info: [:])
+        let done = expectation(description: "check")
+
+        util.check(.photoLibraryReadWrite) { status in
+            XCTAssertEqual(status, .misconfigured)
+            done.fulfill()
+        }
+        wait(for: [done], timeout: 2)
+    }
+
+    func testCheckDoesNotReportMisconfiguredWhenKeyPresent() {
+        let util = PermissionUtil(info: ["NSPhotoLibraryUsageDescription": "读取相册"])
+        let done = expectation(description: "check")
+
+        util.check(.photoLibraryReadWrite) { status in
+            XCTAssertNotEqual(status, .misconfigured)
+            done.fulfill()
+        }
+        wait(for: [done], timeout: 2)
+    }
+
     /// 缺 key 时 `request` 必须直接失败，不能去调系统 API（那会终止 App）
+    func testRequestFailsClosedWithMisconfigured() {
+        let util = PermissionUtil(info: [:])
+        let done = expectation(description: "request")
+
+        util.request(.photoLibraryAddOnly) { status in
+            XCTAssertEqual(status, .misconfigured)
+            done.fulfill()
+        }
+        wait(for: [done], timeout: 2)
+    }
+
     func testUsageDescriptionGuardFailsClosed() {
         let util = PermissionUtil()
         let empty: [String: Any] = [:]

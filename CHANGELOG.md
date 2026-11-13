@@ -26,6 +26,7 @@
 
 ### 变更
 
+- `PermissionUtil` 新增 `PermissionStatus.misconfigured`：Info.plist 缺 usage description 时 `check` / `request` 返回它，不再和「设备没有这个能力」（`.unavailable`）混在一起；`CameraUtil` 补了对应分支
 - **移除 `swift-log` 依赖（breaking）**：`LogUtil` 的 `metadata` 参数从 `Logger.Metadata?` 改为 `[String: String]?`，`configureLogger(label:logLevel:)` 的 `logLevel` 类型改为 `LogLevel`（`.debug` / `.info` 等写法不变）；`Package.resolved` 一并删除，仓库回到零第三方依赖
 
 ### 移除

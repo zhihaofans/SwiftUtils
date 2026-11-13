@@ -73,7 +73,7 @@ swift test --scratch-path .build/scratch --cache-path .build/cache \
 
 ## 已知坑
 
-- `PermissionUtil.request` 会先检查 Info.plist usage description：缺 key 直接返回 `.unavailable`，不会去调系统 API（那会被 TCC 终止）。`.photoLibraryAddOnly` 只认 `NSPhotoLibraryAddUsageDescription`
+- `PermissionUtil` 的 `check` / `request` 都会先查 Info.plist usage description：缺 key 返回 `.misconfigured`（配置问题），不会去调系统 API（那会被 TCC 终止）；设备没有能力才是 `.unavailable`。`.photoLibraryAddOnly` 只认 `NSPhotoLibraryAddUsageDescription`
 - macOS 数据保护钥匙串需要宿主带 `keychain-access-groups` / `application-identifier` entitlement；缺了会回退旧文件钥匙串并打错误日志
 - 测试进程没有权限 usage description、也没有钥匙串 entitlement：相关用例会跳过，或需要注入 `info` 字典
 - `ClipboardUtil.getString` 在 iOS 16+ 会触发系统粘贴授权弹窗，不要放在启动路径

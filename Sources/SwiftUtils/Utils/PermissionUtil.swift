@@ -54,8 +54,13 @@ public enum PermissionStatus: Equatable {
     case denied
     /// 系统限制，用户自己也改不了（MDM、家长控制）
     case restricted
-    /// 当前平台/设备没有这个能力（不是拒绝，别引导去开权限）。
-    /// 另外：Info.plist 缺 usage description 时 `request` 也会返回这个值（不调系统 API，避免崩溃）
+    /// **配置错误**：宿主的 Info.plist 缺这项权限需要的 usage description。
+    ///
+    /// 和 `.unavailable` 的区别：这是「打包/配置漏了」，改 Info.plist 就能好，
+    /// 和设备有没有摄像头无关，也不该引导用户去设置页。`check` / `request` 都会先做这个判断，
+    /// 因为带着缺失的 key 调系统 API 会被直接终止进程。
+    case misconfigured
+    /// 当前平台/设备没有这个能力（不是拒绝，别引导去开权限）
     case unavailable
     /// 未知状态（系统新增的枚举值），不当作拒绝处理
     case unknown
@@ -90,10 +95,20 @@ public enum PermissionKind: Equatable {
 /// - `check` 只查询、不弹框；`request` 只在 `.notDetermined` 时才会弹框，
 ///   其它状态直接把当前结果回调回去；
 /// - 平台/设备不支持时返回 `.unavailable`，不会伪装成 `.denied`；
-/// - 调用系统 API 前需要 Info.plist 里对应的 usage description（见各 `PermissionKind` 注释），
-///   缺 key 时系统会直接杀掉 App，这一步无法在代码里兜底。
+/// - Info.plist 缺 usage description 时返回 `.misconfigured`（配置问题，不是能力问题）；
+///   这两种情况都不会去调系统 API —— 带着缺失的 key 调用会被系统直接终止。
 public class PermissionUtil {
-    public init() {}
+    private let info: [String: Any]?
+
+    /// 默认读宿主 Bundle 的 Info.plist。
+    public init() {
+        self.info = Bundle.main.infoDictionary
+    }
+
+    /// 测试用：注入 Info.plist 内容，避免依赖测试进程自己的 plist。
+    init(info: [String: Any]?) {
+        self.info = info
+    }
 
     // MARK: - 查询
 
@@ -101,6 +116,12 @@ public class PermissionUtil {
     public func check(_ kind: PermissionKind, completion: @escaping (PermissionStatus) -> Void) {
         guard isSupported(kind) else {
             Self.deliver(.unavailable, to: completion)
+            return
+        }
+        guard hasUsageDescription(for: kind, info: info) else {
+            let keys = Self.requiredInfoPlistKeys(for: kind).joined(separator: " / ")
+            SU.log.error("permission: Info.plist 缺少 \(keys)，调用系统 API 会被直接终止（kind: \(kind)）")
+            Self.deliver(.misconfigured, to: completion)
             return
         }
 
@@ -167,18 +188,12 @@ public class PermissionUtil {
 
     /// 申请权限：只有 `.notDetermined` 会真的调用系统 API 弹框，其它状态直接回传当前结果。
     ///
-    /// 宿主 Info.plist 缺少对应 usage description 时**不会**调用系统 API（那会直接终止 App），
-    /// 而是打错误日志并回调 `.unavailable`。
+    /// 缺 usage description 的情况由 `check` 提前拦成 `.misconfigured`，
+    /// 这里不会再走到系统 API；想区分「没配好」和「设备没有这个能力」，看 `.misconfigured` / `.unavailable`。
     public func request(_ kind: PermissionKind, completion: @escaping (PermissionStatus) -> Void) {
         check(kind) { status in
             guard status == .notDetermined else {
                 completion(status)
-                return
-            }
-            guard self.hasUsageDescription(for: kind) else {
-                let keys = Self.requiredInfoPlistKeys(for: kind).joined(separator: " / ")
-                SU.log.error("permission: Info.plist 缺少 \(keys)，调用系统 API 会被直接终止，已跳过请求（kind: \(kind)）")
-                Self.deliver(.unavailable, to: completion)
                 return
             }
             self.performRequest(kind, completion: completion)
